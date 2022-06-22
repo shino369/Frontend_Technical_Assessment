@@ -12,9 +12,9 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
 const steps = [
-  "Select campaign settings",
-  "Create an ad group",
-  "Create an ad",
+  "Fill in your information",
+  "Choose a doctor",
+  "Choose a timeslot",
 ];
 
 export const HomePage = () => {
