@@ -10,7 +10,6 @@ const instance = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
     'x-api-key': API_KEY,
-    Connection: 'keep-alive',
   },
   timeout: 3000,
 });
