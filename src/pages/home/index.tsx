@@ -7,6 +7,7 @@ import { useMediaQuery } from "react-responsive";
 import {
   Box,
   Button,
+  Paper,
   Step,
   StepContent,
   StepLabel,
@@ -49,14 +50,11 @@ export const HomePage = () => {
   }, [getDoc]);
 
   return (
-    <div className="p-4">
-      <div className="page-header mb-2">
-        <strong>DOCTOR BOOKING</strong>
-      </div>
-
-      <hr />
-
-      <Box sx={{ width: "100%" }}>
+    <div className="p-4 d-flex justify-content-center">
+      <Paper elevation={3} sx={{ width: "100%", maxWidth: '1280px', p: 4 }}>
+        <div className="page-header mb-2">
+          <strong>DOCTOR BOOKING</strong>
+        </div>
         <Stepper
           activeStep={activeStep}
           orientation={`${isMobile ? "vertical" : "horizontal"}`}
@@ -142,7 +140,7 @@ export const HomePage = () => {
             </Box>
           </React.Fragment>
         )}
-      </Box>
+      </Paper>
     </div>
   );
 };
