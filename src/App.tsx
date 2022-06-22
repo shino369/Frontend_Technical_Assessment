@@ -1,25 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.scss";
+import { ToastContainer } from "react-toastify";
+import { CommonWrapper, SpinnerComponent } from "components";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ProtectedRoute } from "routes";
+import { userRoutes } from "routes/Routing";
+import { TOAST_TIME } from "config";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
+      <Routes>
+        {userRoutes.map((route, index) => (
+          <Route
+            path={route.path}
+            key={index}
+            element={
+              <ProtectedRoute
+                component={route.component}
+                protectedRoute={route.group === "protected"}
+              />
+            }
+          />
+        ))}
+      </Routes>
+
+      <SpinnerComponent />
+      <ToastContainer
+        position="top-right"
+        autoClose={TOAST_TIME}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </BrowserRouter>
   );
 }
 

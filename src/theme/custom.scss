@@ -1,0 +1,174 @@
+@import "./color.scss";
+
+@import "~bootstrap/scss/bootstrap";
+@import "./typology.scss";
+
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "dark" : $code, 
+  "success": $app-success,
+  "danger": $app-danger,
+  "warning": $app-warning,
+);
+$body-bg: $app-background;
+
+html,
+body {
+  margin: 0 !important;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.left {
+  justify-content: flex-start;
+}
+
+.right {
+  justify-content: flex-end;
+}
+
+.center {
+  justify-content: center;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.hideScroll {
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+*.unselectable {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+
+  /*
+    Introduced in Internet Explorer 10.
+    See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+  */
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.abs-top-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.abs-bottom-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.abs-bottom-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.abs-bottom-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.border-bottom-light {
+  border-bottom: 1px solid $border-light !important;
+}
+
+.border-right-light {
+  border-right: 1px solid $border-light !important;
+}
+
+.border-left-light {
+  border-left: 1px solid $border-light !important;
+}
+
+.border-top-light {
+  border-top: 1px solid $border-light !important;
+}
+
+.btn:focus,
+.btn:active {
+  outline: none !important;
+  box-shadow: none;
+}
+
+.transition {
+  transition: all 0.2s ease-in-out;
+  -webkit-transition: all 0.2s ease-in-out;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-1 {
+  opacity: 1;
+}
+
+.bg-code {
+  background-color: $code;
+}
+
+
+@media screen and (max-width: 576px) {
+  .code-max-width {
+    max-width: 90vw;
+  }
+}
+  
+@media screen and (min-width: 576px) {
+  .code-max-width {
+    max-width: 50vw;
+  }
+}
+
+.high-light {
+  background-color: lightgray;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  margin-right: 0.1rem;
+}
+
+.page-header {
+  @include typography(3rem, 'semibold');
+}
+
+p {
+    @include typography(1.2rem, 'regular');
+}
+
+.remark{
+  opacity: 0.7;
+  // text italic
+  font-style: italic;
+}
+
+.opactiy-5{
+  @include typography(1rem, 'regular');
+  opacity: 0.5;
+}
+
+.label{
+  @include typography(1rem, 'semibold');
+}

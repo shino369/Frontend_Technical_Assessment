@@ -1,0 +1,130 @@
+@import "theme/custom.scss";
+
+@media screen and (max-width: 576px) {
+  .sidebar {
+    &.collapsed {
+      width: 0vw;
+    }
+    &.expanded {
+      width: 100vw;
+    }
+  }
+}
+@media screen and (min-width: 576px) {
+  .sidebar {
+    &.collapsed {
+      width: 5rem;
+    }
+    &.expanded {
+      width: 20rem;
+    }
+  }
+
+  .side-menu {
+    display: none;
+  }
+}
+
+.sidebar {
+  transition: all 0.2s ease-in-out;
+  --webkit-transition: all 0.2s ease-in-out;
+  flex: 0 0 auto;
+  height: 100%;
+  
+  .accordion-button {
+    @include typography(1.2rem, "semibold");
+    background-color: transparent;
+    color: $text-primary;
+    padding: 0;
+    &:focus {
+      border: none;
+      box-shadow: none;
+    }
+
+    &::after {
+      filter: contrast(0.1);
+    }
+  }
+
+  .accordion-button:not(.collapsed) {
+    color: $text-primary;
+    background-color: transparent;
+    box-shadow: none;
+
+    &::after {
+      filter: grayscale(1) contrast(0.1);
+    }
+  }
+
+  .accordion-body {
+    padding: 0;
+  }
+
+  .accordion-item {
+    background-color: transparent;
+    border: none;
+  }
+
+  .header {
+    transition: all 0.2s ease-in-out;
+    --webkit-transition: all 0.2s ease-in-out;
+  }
+
+  .label {
+    @include typography(1.2rem, "semibold");
+    white-space: nowrap;
+    color: $text-primary;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    &.active {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .label-text {
+      transition: all 0.2s ease-in-out;
+      --webkit-transition: all 0.2s ease-in-out;
+    }
+  }
+
+  .sidebar-header {
+    @include typography(1.5rem, "semibold");
+    color: $text-primary;
+    color: black;
+    background-color: white;
+    height: 3.5rem;
+  }
+}
+
+.sidebar-body {
+  flex-grow: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hide {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.outer-wrapper {
+  opacity: 0.5;
+}
+.wrapper {
+  position: relative;
+  font-family: Lato, sans-serif;
+  font-size: 0.75rem;
+  font-weight: bold;
+  // padding-left: 15vw;
+  overflow: hidden;
+}
+
+.wrapper .hello {
+  color: black;
+}

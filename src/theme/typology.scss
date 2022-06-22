@@ -1,0 +1,77 @@
+// font family, size, weight ...
+@use 'sass:map';
+
+:root {
+  // screen size <= 355px
+  @media only screen and (max-width: 355px) {
+  }
+
+  // screen size > 355px && <= 406px
+  @media only screen and (max-width: 404px) and (min-width: 355px) {
+  }
+
+  // screen size > 404px && <= 451px
+  @media only screen and (max-width: 451px) and (min-width: 405px) {
+  }
+
+  // screen size > 451px && <= 499px
+  @media only screen and (max-width: 499px) and (min-width: 452px) {
+  }
+
+  // screen size > 499px && <= 786px
+  @media only screen and (max-width: 786px) and (min-width: 500px) {
+  }
+
+  // screen size > 786px
+  @media only screen and (min-width: 787px) {
+  }
+}
+
+$font-weights: (
+  'regular': 400,
+  'semibold': 600,
+  'bold': 800,
+);
+
+@for $i from 8px through 150px {
+  @each $name, $weight in $font-weights {
+    .size-#{$i}-#{$name} {
+      @include font-size($i);
+      font-family: "Segoe UI", Meiryo, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: $weight;
+      text-align: unset;
+      white-space: pre-wrap;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
+@mixin typography(
+  $font-size,
+  $font-weight,
+  $text-align: unset,
+  $white-space: pre-wrap
+) {
+  @include font-size($font-size);
+  font-family: "Segoe UI", Meiryo, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: map.get($font-weights, $font-weight);
+  text-align: $text-align;
+  white-space: $white-space;
+  letter-spacing: 0.05em;
+}
+
+@mixin error-typography(
+  $font-size,
+  $font-weight,
+  $letter-spacing: 0.05em,
+  $text-align: center,
+  $white-space: pre-wrap
+) {
+  @include font-size($font-size);
+  font-family: Poppins;
+  font-weight: $font-weight;
+  text-align: $text-align;
+  white-space: $white-space;
+  letter-spacing: $letter-spacing;
+  margin: 0;
+}

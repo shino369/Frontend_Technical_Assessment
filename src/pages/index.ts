@@ -1,0 +1,1 @@
+export {LazyHome} from './home/lazy';
