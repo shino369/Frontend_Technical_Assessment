@@ -13,7 +13,7 @@ interface Props {
 
 const ProtectedRoute = ({ component, routeName, protectedRoute }: Props) => {
   const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
-  const [isCollapsed, setIsCollapsed] = useState(isMobile);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <CommonWrapper

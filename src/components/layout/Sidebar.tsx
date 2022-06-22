@@ -34,7 +34,7 @@ const Sidebar: React.FC<Props> = ({
     <div
       className={`${
         isCollapsed ? "collapsed" : "expanded"
-      } bg-primary sidebar px-0 d-flex flex-column fixed-sidebar`}
+      } bg-secondary sidebar px-0 d-flex flex-column fixed-sidebar`}
     >
       <div
         className={`sidebar-header border-right d-flex justify-content-start ${
@@ -49,7 +49,7 @@ const Sidebar: React.FC<Props> = ({
         >
           <div className="outer-wrapper d-flex">
             <div className="wrapper">
-              <span className="hello">Necktie Booking</span>
+              <span className="hello">Necktie Doctor Booking</span>
             </div>
 
           </div>
