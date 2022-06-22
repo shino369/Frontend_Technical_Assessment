@@ -8,3 +8,12 @@
   height: fit-content;
   width: 6rem;
 }
+
+.grid{
+  display: grid;
+  grid-template-columns: calc(50% - 0.25rem) calc(50% - 0.25rem);
+  column-gap: 0.5rem;
+  row-gap: 0.5rem;
+  .grid-item{
+  }
+}

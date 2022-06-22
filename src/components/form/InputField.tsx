@@ -30,6 +30,7 @@ type InputType =
   | "week";
 
 interface OtherProps {
+  className?: string;
   label?: string;
   horizontal?: boolean;
   type?: InputType;
@@ -43,10 +44,10 @@ interface OtherProps {
 
 const InputField = (props: OtherProps & FieldHookConfig<string>) => {
   const [field, meta] = useField(props);
-  const { label, type, placeholder, rows, disabled, showError, style } = props;
+  const { label, type, placeholder, rows, disabled, showError, style, className } = props;
   return (
     <div
-      className={clsx("transition", "form-group")}
+      className={clsx("transition", "form-group", className)}
       style={
         type === "textarea"
           ? { height: "unset" }

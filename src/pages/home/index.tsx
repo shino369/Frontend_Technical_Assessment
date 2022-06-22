@@ -14,6 +14,10 @@ import {
   Stepper,
   Typography,
 } from "@mui/material";
+import { Carousel } from "react-bootstrap";
+import { Form, Formik, FormikHelpers } from "formik";
+import * as Yup from "yup";
+import { InputField } from "components";
 
 const steps = [
   "Fill in your information",
@@ -21,12 +25,26 @@ const steps = [
   "Choose a timeslot",
 ];
 
+const Schema = Yup.object().shape({
+  name: Yup.string().required(),
+  start: Yup.string().required(),
+  doctorId: Yup.string().required(),
+  date: Yup.string().required(),
+});
+
+type FormItem = {
+  name: string;
+  start: string;
+  doctorId: string;
+  date: string;
+};
+
 export const HomePage = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
 
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -49,6 +67,21 @@ export const HomePage = () => {
     getDoc();
   }, [getDoc]);
 
+  const onSubmit = async (
+    values: FormItem,
+    actions: FormikHelpers<FormItem>
+  ) => {
+    console.log(values);
+    actions.setSubmitting(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      actions.setSubmitting(false);
+      actions.resetForm();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="p-4 d-flex justify-content-center">
       <Paper
@@ -56,13 +89,13 @@ export const HomePage = () => {
         sx={{
           width: "100%",
           maxWidth: "1280px",
-          p: isMobile ? 0 : 4,
-          minHeight: "calc(60vh - 48px - 3.5rem)",
+          minHeight: "calc(80vh - 48px - 3.5rem)",
+          maxHeight: "calc(80vh - 48px - 3.5rem)",
           display: "flex",
           flexDirection: "column",
         }}
       >
-        <div className="page-header mb-2">
+        <div className={`page-header mb-2 ${isMobile ? "px-0" : "px-4 pt-4"}`}>
           <strong>DOCTOR BOOKING</strong>
         </div>
         <Stepper
@@ -70,13 +103,14 @@ export const HomePage = () => {
             "& .Mui-active": {
               "& .MuiStepConnector-line": {
                 borderColor: "#ff6ba7 !important",
-              }
+              },
             },
             "& .Mui-completed": {
               "& .MuiStepConnector-line": {
                 borderColor: "#ff6ba7 !important",
-              }
-            }
+              },
+            },
+            p: isMobile ? 0 : 3,
           }}
           activeStep={activeStep}
           orientation={`${isMobile ? "vertical" : "horizontal"}`}
@@ -144,29 +178,135 @@ export const HomePage = () => {
           </React.Fragment>
         )}
         {!isMobile && activeStep !== steps.length && (
-          <React.Fragment>
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography sx={{ mt: 2, mb: 1, mx: 1 }}>
-                Step {activeStep + 1}
-              </Typography>
-            </Box>
+          <div style={{ flexGrow: 1 }} className="d-flex flex-column">
+            <Formik
+              style={{ flexGrow: 1 }}
+              initialValues={{
+                name: "",
+                start: "",
+                doctorId: "",
+                date: "",
+              }}
+              validationSchema={Schema}
+              onSubmit={onSubmit}
+            >
+              {({ values }) => (
+                <Form
+                  style={{ flexGrow: 1 }}
+                  className="d-flex flex-column"
+                  onChange={() => {}}
+                >
+                  <Carousel
+                    className="pt-4"
+                    style={{ flexGrow: 1 }}
+                    indicators={false}
+                    controls={false}
+                    variant="dark"
+                    activeIndex={activeStep}
+                  >
+                    <Carousel.Item>
+                      <div className="d-flex align-items-center px-5 justify-content-around">
+                        <img
+                          src={require("assets/images/typing.png")}
+                          alt="First slide"
+                          width={400}
+                          height={"auto"}
+                        />
+                        <InputField
+                          className="col-4"
+                          label="Your Name"
+                          name="name"
+                          placeholder="Please input your name"
+                          type="text"
+                          showError
+                        />
+                      </div>
+                    </Carousel.Item>
+                    <Carousel.Item>
+                      <Typography className="px-4 pb-2">Choose a doctor</Typography>
+                      <div
+                        className="overflow-auto hideScroll px-4 border-bottom border-top"
+                        style={{ maxHeight: "calc(50vh - 48px - 3.5rem)" }}
+                      >
+                        <div className="grid">
+                          {doctors.map((doctor, index) => (
+                            //table
+                            <div className="card m-2" key={index}>
+                              <div className="card-body">
+                                <h5 className="card-title">
+                                  Dr. {doctor.name}
+                                </h5>
+                                <div className="card-text">
+                                  {doctor.address.line_2}
+                                </div>
+                                <div className="card-text">
+                                  {doctor.address.line_1}
+                                </div>
+                                <div className="card-text">
+                                  {doctor.address.district}
+                                </div>
+                                <div className="card-text">
+                                  {doctor.description}
+                                </div>
+                                {/* {doctor.opening_hours.map((opening, index) => (
+                                <p className="card-text" key={index}>
+                                  {opening.day +
+                                    ": from " +
+                                    opening.start +
+                                    " to " +
+                                    opening.end}
+                                </p>
+                              ))} */}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Carousel.Item>
+                    <Carousel.Item>
+                      <InputField
+                        name="date"
+                        placeholder="Input something..."
+                        type="textarea"
+                      />
+                      <InputField
+                        name="start"
+                        placeholder="Input something..."
+                        type="textarea"
+                      />
+                    </Carousel.Item>
+                  </Carousel>
 
-            <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-              <Button
-                color="inherit"
-                disabled={activeStep === 0}
-                onClick={handleBack}
-                sx={{ mr: 1 }}
-              >
-                Back
-              </Button>
-              <Box sx={{ flex: "1 1 auto" }} />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      pt: 2,
+                      p: isMobile ? 0 : 4,
+                    }}
+                  >
+                    <Button
+                      color="inherit"
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mr: 1 }}
+                    >
+                      Back
+                    </Button>
+                    <Box sx={{ flex: "1 1 auto" }} />
 
-              <Button color="info" variant="contained" onClick={handleNext}>
-                {activeStep === steps.length - 1 ? "Finish" : "Next"}
-              </Button>
-            </Box>
-          </React.Fragment>
+                    <Button
+                      color="info"
+                      variant="contained"
+                      onClick={handleNext}
+                    >
+                      {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                    </Button>
+                  </Box>
+                </Form>
+              )}
+            </Formik>
+          </div>
         )}
       </Paper>
     </div>
