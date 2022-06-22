@@ -2,14 +2,17 @@ import { Doctor } from "models/Doctor";
 import React, { useCallback, useEffect, useState } from "react";
 import { getDoctorList } from "services/DoctorService";
 import "./index.scss";
-
+import { useMediaQuery } from "react-responsive";
 // mui
-import Box from "@mui/material/Box";
-import Stepper from "@mui/material/Stepper";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import {
+  Box,
+  Button,
+  Step,
+  StepContent,
+  StepLabel,
+  Stepper,
+  Typography,
+} from "@mui/material";
 
 const steps = [
   "Fill in your information",
@@ -18,6 +21,7 @@ const steps = [
 ];
 
 export const HomePage = () => {
+  const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
 
@@ -53,7 +57,10 @@ export const HomePage = () => {
       <hr />
 
       <Box sx={{ width: "100%" }}>
-        <Stepper  activeStep={activeStep}>
+        <Stepper
+          activeStep={activeStep}
+          orientation={`${isMobile ? "vertical" : "horizontal"}`}
+        >
           {steps.map((label, index) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
@@ -62,19 +69,47 @@ export const HomePage = () => {
 
             return (
               <Step key={label} {...stepProps}>
-                <StepLabel sx={{
-                  '& .Mui-active': {
-                    color: '#ff6ba7',
-                  },
-                  '& .Mui-completed': {
-                    color: '#ff6ba7',
-                  },
-                }} {...labelProps}>{label}</StepLabel>
+                <StepLabel
+                  sx={{
+                    "& .Mui-active": {
+                      color: "#ff6ba7 !important",
+                    },
+                    "& .Mui-completed": {
+                      color: "#ff6ba7 !important",
+                    },
+                  }}
+                  {...labelProps}
+                >
+                  {label}
+                </StepLabel>
+                {isMobile && (
+                  <StepContent>
+                    <Typography>{"test test test"}</Typography>
+                    <Box sx={{ mb: 2 }}>
+                      <div>
+                        <Button
+                          variant="contained"
+                          onClick={handleNext}
+                          sx={{ mt: 1, mr: 1 }}
+                        >
+                          {index === steps.length - 1 ? "Finish" : "Continue"}
+                        </Button>
+                        <Button
+                          disabled={index === 0}
+                          onClick={handleBack}
+                          sx={{ mt: 1, mr: 1 }}
+                        >
+                          Back
+                        </Button>
+                      </div>
+                    </Box>
+                  </StepContent>
+                )}
               </Step>
             );
           })}
         </Stepper>
-        {activeStep === steps.length ? (
+        {!isMobile && activeStep === steps.length && (
           <React.Fragment>
             <Typography sx={{ mt: 2, mb: 1 }}>
               All steps completed - you&apos;re finished
@@ -84,9 +119,12 @@ export const HomePage = () => {
               <Button onClick={handleReset}>Reset</Button>
             </Box>
           </React.Fragment>
-        ) : (
+        )}
+        {!isMobile && activeStep !== steps.length && (
           <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
+            <Typography sx={{ mt: 2, mb: 1, mx: 1 }}>
+              Step {activeStep + 1}
+            </Typography>
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
                 color="inherit"
