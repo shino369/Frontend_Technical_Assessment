@@ -18,6 +18,7 @@ function App() {
             key={index}
             element={
               <ProtectedRoute
+                routeName={route.name}
                 component={route.component}
                 protectedRoute={route.group === "protected"}
               />

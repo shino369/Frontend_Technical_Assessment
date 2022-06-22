@@ -9,6 +9,7 @@ import { userRoutes } from "routes/Routing";
 
 export interface Props {
   className?: string;
+  routeName?: string;
   isCollapsed: boolean;
   toggle: () => void;
   close: () => void;
@@ -16,19 +17,24 @@ export interface Props {
 
 const Sidebar: React.FC<Props> = ({
   className,
+  routeName,
   toggle,
   isCollapsed,
   close,
 }) => {
   // let location = useLocation();
-  const [activeRoute, setActiveRoute] = React.useState('');
+  const [activeRoute, setActiveRoute] = React.useState(routeName);
+
+  useEffect(() => {
+    setActiveRoute(routeName);
+  }, [routeName]);
 
 
   return (
     <div
       className={`${
         isCollapsed ? "collapsed" : "expanded"
-      } bg-primary sidebar px-0 d-flex flex-column`}
+      } bg-primary sidebar px-0 d-flex flex-column fixed-sidebar`}
     >
       <div
         className={`sidebar-header border-right d-flex justify-content-start ${
@@ -43,15 +49,9 @@ const Sidebar: React.FC<Props> = ({
         >
           <div className="outer-wrapper d-flex">
             <div className="wrapper">
-              <span className="box"></span>
-              <span className="hello">shinoreact: ~$</span>
+              <span className="hello">Necktie Booking</span>
             </div>
-            <div className="wrapper wrapper-2 ms-2">
-              <div>
-                <span className="typing"></span>
-                <span className="cursor">_</span>
-              </div>
-            </div>
+
           </div>
           <div className="side-menu">
             <Hamburger toggled={!isCollapsed} toggle={toggle} />
