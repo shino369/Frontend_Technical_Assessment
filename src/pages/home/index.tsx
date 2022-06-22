@@ -57,7 +57,7 @@ export const HomePage = () => {
           width: "100%",
           maxWidth: "1280px",
           p: isMobile ? 0 : 4,
-          minHeight: "calc(100vh - 48px - 3.5rem)",
+          minHeight: "calc(60vh - 48px - 3.5rem)",
           display: "flex",
           flexDirection: "column",
         }}
@@ -66,6 +66,18 @@ export const HomePage = () => {
           <strong>DOCTOR BOOKING</strong>
         </div>
         <Stepper
+          sx={{
+            "& .Mui-active": {
+              "& .MuiStepConnector-line": {
+                borderColor: "#ff6ba7 !important",
+              }
+            },
+            "& .Mui-completed": {
+              "& .MuiStepConnector-line": {
+                borderColor: "#ff6ba7 !important",
+              }
+            }
+          }}
           activeStep={activeStep}
           orientation={`${isMobile ? "vertical" : "horizontal"}`}
         >
@@ -150,7 +162,7 @@ export const HomePage = () => {
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
 
-              <Button variant="contained" onClick={handleNext}>
+              <Button color="info" variant="contained" onClick={handleNext}>
                 {activeStep === steps.length - 1 ? "Finish" : "Next"}
               </Button>
             </Box>
