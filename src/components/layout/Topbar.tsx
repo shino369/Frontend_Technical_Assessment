@@ -39,7 +39,7 @@ const Topbar: React.FC<Props> = ({
       <div className={``}>
         <Hamburger toggled={!isCollapsed} toggle={toggle} />
       </div>
-      <div className="current ms-2">{activeRoute}</div>
+      <div className="current ms-2">{activeRoute.toUpperCase()}</div>
 
       <div className="d-flex user justify-content-end align-items-center position-absolute end-0">
 
