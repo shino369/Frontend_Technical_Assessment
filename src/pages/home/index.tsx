@@ -51,7 +51,17 @@ export const HomePage = () => {
 
   return (
     <div className="p-4 d-flex justify-content-center">
-      <Paper elevation={3} sx={{ width: "100%", maxWidth: '1280px', p: 4 }}>
+      <Paper
+        elevation={isMobile ? 0 : 3}
+        sx={{
+          width: "100%",
+          maxWidth: "1280px",
+          p: isMobile ? 0 : 4,
+          minHeight: "calc(100vh - 48px - 3.5rem)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div className="page-header mb-2">
           <strong>DOCTOR BOOKING</strong>
         </div>
@@ -109,9 +119,12 @@ export const HomePage = () => {
         </Stepper>
         {!isMobile && activeStep === steps.length && (
           <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
-            </Typography>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography sx={{ mt: 2, mb: 1 }}>
+                All steps completed - you&apos;re finished
+              </Typography>
+            </Box>
+
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Box sx={{ flex: "1 1 auto" }} />
               <Button onClick={handleReset}>Reset</Button>
@@ -120,9 +133,12 @@ export const HomePage = () => {
         )}
         {!isMobile && activeStep !== steps.length && (
           <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1, mx: 1 }}>
-              Step {activeStep + 1}
-            </Typography>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography sx={{ mt: 2, mb: 1, mx: 1 }}>
+                Step {activeStep + 1}
+              </Typography>
+            </Box>
+
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
                 color="inherit"
@@ -134,7 +150,7 @@ export const HomePage = () => {
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
 
-              <Button onClick={handleNext}>
+              <Button variant="contained" onClick={handleNext}>
                 {activeStep === steps.length - 1 ? "Finish" : "Next"}
               </Button>
             </Box>
