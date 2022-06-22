@@ -39,7 +39,7 @@ export const HomePage = () => {
       <hr />
 
 
-      <div className="d-flex justify-content-center">
+      <div className="d-flex flex-column justify-content-center">
           {doctors.map((doctor, index) => (
             //table
             <div className="card m-2" key={index}>
