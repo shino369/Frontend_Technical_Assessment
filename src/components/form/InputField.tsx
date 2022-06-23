@@ -39,12 +39,13 @@ interface OtherProps {
   disabled?: boolean;
   showError?: boolean;
   style?: React.CSSProperties;
+  min?: string;
   onInputChange?: (e:any) => void;
 }
 
 const InputField = (props: OtherProps & FieldHookConfig<string>) => {
   const [field, meta] = useField(props);
-  const { label, type, placeholder, rows, disabled, showError, style, className } = props;
+  const { label, type, placeholder, rows, disabled, showError, style, className, min } = props;
   return (
     <div
       className={clsx("transition", "form-group", className)}
@@ -64,6 +65,7 @@ const InputField = (props: OtherProps & FieldHookConfig<string>) => {
         autoComplete="off"
         rows={rows}
         disabled={disabled}
+        min={min}
         onChange={(e) => {
           field.onChange(e);
           props.onInputChange && props.onInputChange(e.target.value);
