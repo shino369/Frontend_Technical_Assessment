@@ -14,10 +14,10 @@ import {
   Stepper,
   Typography,
 } from "@mui/material";
-import { Carousel } from "react-bootstrap";
+import { Carousel, Form as BSForm } from "react-bootstrap";
 import { Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { InputField } from "components";
+import { EffectGrid, InputField } from "components";
 
 const steps = [
   "Fill in your information",
@@ -41,10 +41,9 @@ type FormItem = {
 
 export const HomePage = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
-
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-
   const [activeStep, setActiveStep] = useState(0);
+  const [ready, setReady] = useState(false);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -59,13 +58,38 @@ export const HomePage = () => {
   };
 
   const getDoc = useCallback(async () => {
-    const data = await getDoctorList();
-    setDoctors(data);
+    try {
+      const data = await getDoctorList();
+      setDoctors(data);
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
 
   useEffect(() => {
     getDoc();
   }, [getDoc]);
+
+  useEffect(() => {
+    setReady(false);
+    setTimeout(() => {
+      setReady(true);
+    }, 500);
+  }, [activeStep]);
+
+  const renderGridItem = (doctor: Doctor) => {
+    return (
+      <div className="card m-2">
+        <div className="card-body">
+          <h5 className="card-title">Dr. {doctor.name}</h5>
+          <div className="card-text">{doctor.address.line_2}</div>
+          <div className="card-text">{doctor.address.line_1}</div>
+          <div className="card-text">{doctor.address.district}</div>
+          <div className="card-text">{doctor.description}</div>
+        </div>
+      </div>
+    );
+  };
 
   const onSubmit = async (
     values: FormItem,
@@ -93,6 +117,7 @@ export const HomePage = () => {
           maxHeight: "calc(80vh - 48px - 3.5rem)",
           display: "flex",
           flexDirection: "column",
+          transition: "all 0.2s ease-in-out",
         }}
       >
         <div className={`page-header mb-2 ${isMobile ? "px-0" : "px-4 pt-4"}`}>
@@ -223,44 +248,33 @@ export const HomePage = () => {
                       </div>
                     </Carousel.Item>
                     <Carousel.Item>
-                      <Typography className="px-4 pb-2">Choose a doctor</Typography>
+                      <div className="d-flex align-items-center py-2 px-2">
+                        <BSForm.Select
+                          className="col"
+                          id="district"
+                          aria-label="Default select example"
+                        >
+                          <option disabled value="">
+                            Location
+                          </option>
+                          {doctors.map((doctor) => (
+                            <option value={doctor.address.district}>
+                              {doctor.address.district}
+                            </option>
+                          ))}
+                        </BSForm.Select>
+                      </div>
+
                       <div
                         className="overflow-auto hideScroll px-4 border-bottom border-top"
                         style={{ maxHeight: "calc(50vh - 48px - 3.5rem)" }}
                       >
-                        <div className="grid">
-                          {doctors.map((doctor, index) => (
-                            //table
-                            <div className="card m-2" key={index}>
-                              <div className="card-body">
-                                <h5 className="card-title">
-                                  Dr. {doctor.name}
-                                </h5>
-                                <div className="card-text">
-                                  {doctor.address.line_2}
-                                </div>
-                                <div className="card-text">
-                                  {doctor.address.line_1}
-                                </div>
-                                <div className="card-text">
-                                  {doctor.address.district}
-                                </div>
-                                <div className="card-text">
-                                  {doctor.description}
-                                </div>
-                                {/* {doctor.opening_hours.map((opening, index) => (
-                                <p className="card-text" key={index}>
-                                  {opening.day +
-                                    ": from " +
-                                    opening.start +
-                                    " to " +
-                                    opening.end}
-                                </p>
-                              ))} */}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                        <EffectGrid
+                          checked={ready}
+                          data={doctors}
+                          children={renderGridItem}
+                          effectType={"zoom"}
+                        />
                       </div>
                     </Carousel.Item>
                     <Carousel.Item>
