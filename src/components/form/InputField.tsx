@@ -53,7 +53,7 @@ const InputField = (props: OtherProps & FieldHookConfig<string>) => {
       style={
         type === "textarea"
           ? { height: "unset" }
-          : { height: label ? 85 : "fit-content" }
+          : { height: label ? 100 : "fit-content" }
       }
     >
       {label ? <Label>{props.label}</Label> : null}

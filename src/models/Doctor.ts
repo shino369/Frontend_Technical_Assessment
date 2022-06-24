@@ -5,7 +5,7 @@ export interface Doctor {
   name: string;
   opening_hours: OpeningHours[];
   notAvailableDays?: number[];
-  reformatted_op_hours?: OpeningHours;
+  reformatted_op_hours: OpeningHours;
 }
 
 export interface OpeningHours {

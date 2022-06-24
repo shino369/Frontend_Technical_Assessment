@@ -27,6 +27,7 @@ const Sidebar: React.FC<Props> = ({
 
   useEffect(() => {
     setActiveRoute(routeName);
+    close();
   }, [routeName]);
 
 
@@ -61,7 +62,7 @@ const Sidebar: React.FC<Props> = ({
       <div className={`sidebar-body hideScroll`}>
         <div className="sidebar-body-item d-flex flex-column j  ustify-content-start">
           {userRoutes
-            .filter((f) => f.group.length === 0)
+            .filter((f) => f.group !== "hidden")
             .map((route, i) => (
               <NavLink
                 key={i}

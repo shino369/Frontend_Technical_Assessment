@@ -7,7 +7,7 @@ export const getDoctorList = async () => {
   return data;
 };
 
-export const getDoctor = async (id: number) => {
+export const getDoctor = async (id: string) => {
   const { data } = await Axios.get<Doctor>(`/doctor/${id}`);
   return data;
 };

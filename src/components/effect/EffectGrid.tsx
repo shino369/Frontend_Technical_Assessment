@@ -10,9 +10,10 @@ import CheckRoundIcon from "@rsuite/icons/CheckRound";
 interface Props {
   children: any;
   data: any[];
-  selected: string;
+  selected?: string;
   checked: boolean;
   effectType: "fade" | "zoom" | "none";
+  isMobile?: boolean;
   onSelect: (value: string) => void;
 }
 
@@ -24,6 +25,7 @@ const EffectGrid: React.FC<Props> = ({
   checked,
   selected,
   effectType,
+  isMobile,
   onSelect,
 }) => {
   return (
@@ -33,7 +35,7 @@ const EffectGrid: React.FC<Props> = ({
           <div
             key={index}
             style={{ minWidth: "280px" }}
-            className={`col-3 position-relative`}
+            className={`col-3 position-relative ${isMobile? "mx-auto" : ""}`}
           >
             <Zoom
               onClick={() => {

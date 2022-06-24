@@ -10,7 +10,8 @@ import { ReactComponent as PersonCircle } from "assets/icons/person-circle.svg";
 import { ReactComponent as Text } from "assets/icons/text-fill.svg";
 import { ReactComponent as ArrowDown } from "assets/icons/arrow-down.svg";
 import { ReactComponent as Options } from "assets/icons/options.svg";
-
+import { ReactComponent as Doctor } from "assets/icons/doctor.svg";
+import { ReactComponent as Appoint } from "assets/icons/appoint.svg";
 
 export interface Props {
   name: string;
@@ -84,6 +85,10 @@ const Icon: React.FC<Props> = ({
         return <ArrowDown width={size} height={size} fill={color} />;
       case "options":
         return <Options width={size} height={size} fill={color} />;
+      case "doctor":
+        return <Doctor width={size} height={size} fill={color} />;
+      case "appoint":
+        return <Appoint width={size} height={size} fill={color} />;
       default:
         return <House width={size} height={size} fill={color} />;
     }

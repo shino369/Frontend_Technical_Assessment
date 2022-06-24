@@ -16,7 +16,7 @@ const SpinnerComponent: React.FC<Props> = ({ className }) => {
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
-        backdropFilter: "blur(5px)",
+        backdropFilter: "blur(2px)",
         top: 0,
         zIndex: 1030,
       }}

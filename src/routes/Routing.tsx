@@ -1,4 +1,6 @@
 import { LazyHome } from "pages";
+import { LazyDoctor } from "pages/doctor/lazy";
+import { LazyDoctorList } from "pages/doctorlist/lazy";
 import { Navigate } from "react-router-dom";
 interface Route {
   name: string;
@@ -12,10 +14,24 @@ interface Route {
 const userRoutes: Route[] = [
   {
     name: "home",
-    icon: "house-fill",
+    icon: "appoint",
     group: "",
     path: "/",
     component: <LazyHome />,
+  },
+  {
+    name: "doctor list",
+    icon: "doctor",
+    group: "",
+    path: "/doctorlist",
+    component: <LazyDoctorList />,
+  },
+  {
+    name: "doctor",
+    icon: "house-fill",
+    group: "hidden",
+    path: "/doctor/:id",
+    component: <LazyDoctor />,
   },
   // 404
   {
