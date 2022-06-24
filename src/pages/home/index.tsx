@@ -17,24 +17,34 @@ import {
 import { Carousel, Form as BSForm } from "react-bootstrap";
 import { Form, Formik, FormikHelpers, FormikProps } from "formik";
 import * as Yup from "yup";
-import { EffectGrid, InputField } from "components";
+import { EffectGrid, InputField, ShowError } from "components";
 import _, { values } from "lodash";
 import moment from "moment";
 import { DatePicker } from "rsuite";
 import { Label } from "reactstrap";
+import { useDispatch } from "react-redux";
+import { setBooking } from "store/booking";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
+import { addDays } from "rsuite/esm/utils/dateUtils";
 
 const steps = [
   "Fill in your information",
   "Choose a doctor",
   "Choose a timeslot",
+  "Fonfirm",
 ];
 
 const Schema = Yup.object().shape({
-  name: Yup.string().required(),
-  docName: Yup.string(),
-  start: Yup.string().required(),
-  doctorId: Yup.string().required(),
-  date: Yup.string().required(),
+  name: Yup.string().required("Please enter your name"),
+  docName: Yup.string(), // dummy
+  doctorId: Yup.string().required("Please select a doctor"),
+  date: Yup.string().required("Please select a date"),
+  start: Yup.string().when("date", {
+    is: (date: string) => !date || date.length === 0,
+    then: Yup.string().required("Please fill in date first"),
+    otherwise: Yup.string().required("Please select a time"),
+  }),
 });
 
 type FormItem = {
@@ -54,28 +64,32 @@ enum WEEKDAYS {
   SAT,
   SUN,
 }
-const WEEKDAYS_ARR: Weekdays[] = [
-  "MON",
-  "TUE",
-  "WED",
-  "THU",
-  "FRI",
-  "SAT",
-  "SUN",
-];
+const WEEKMAPPER = {
+  MON: 1,
+  TUE: 2,
+  WED: 3,
+  THU: 4,
+  FRI: 5,
+  SAT: 6,
+  SUN: 0,
+};
 
 const CARD_HEIGHT = 100;
 const FORM_MAX_WIDTH = "1280px";
 const FORM_MAX_HEIGHT = "calc(90vh - 48px - 3.5rem)";
+const today = new Date();
 
 export const HomePage = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>();
   const [activeStep, setActiveStep] = useState<number>(0);
   const [ready, setReady] = useState<boolean>(false);
   const [location, setLocation] = useState<string>("");
   const [doctorName, setDoctorName] = useState<string>("");
+  const dispatch = useDispatch();
+  const { booking } = useSelector((rootState: RootState) => rootState.booking);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -100,11 +114,11 @@ export const HomePage = () => {
         reformatted_op_hours: Object.assign(
           {},
           ...item.opening_hours.map((_item) => ({
-            [_item.day]: { start: _item.start, end: _item.end },
+            [WEEKMAPPER[_item.day]]: { start: _item.start, end: _item.end },
           }))
         ),
       }));
-      console.log(_data);
+      // console.log(_data);
       setDoctors(_data);
       setAllDoctors(_data);
     } catch (error) {
@@ -177,12 +191,66 @@ export const HomePage = () => {
     }
 
     if (valid) {
+      console.log(booking);
+      dispatch(
+        setBooking({
+          ...props.values,
+          docName: selectedDoctor?.name || "",
+          location: selectedDoctor?.address || "",
+        })
+      );
+
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     } else {
       for (let field of fields) {
+        // console.log(field);
         props.setFieldTouched(field, true);
       }
     }
+  };
+
+  const isValidRange = (hour: any, props: FormikProps<FormItem>) => {
+    const availableRange = selectedDoctor!.reformatted_op_hours;
+    const weekday = moment(props.values.date).weekday();
+    // console.log(availableRange);
+    // console.log(weekday);
+    if (availableRange && availableRange[weekday]) {
+      // console.log(availableRange);
+      // console.log(parseInt(availableRange[weekday]?.end.split(".")[0]));
+      if (
+        hour < parseInt(availableRange[weekday]?.start.split(".")[0]) ||
+        hour > parseInt(availableRange[weekday]?.end.split(".")[0])
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const notAvailable = (
+    date: Date | undefined,
+    props: FormikProps<FormItem>
+  ) => {
+    // console.log(moment(date).weekday());
+
+    if (moment(date).isBefore(new Date())) {
+      return true;
+    }
+
+    const doc = allDoctors.find(
+      (doctor) => doctor.id === props.values.doctorId
+    );
+    // doc!.notAvailableDays = [1,2,3]    // check if work by test data
+
+    if (doc && doc.notAvailableDays) {
+      if (doc.notAvailableDays.length === 0) {
+        return false;
+      } else {
+        return doc.notAvailableDays.includes(moment(date).weekday());
+      }
+    }
+
+    return false;
   };
 
   const renderGridItem = (doctor: Doctor, index: number) => {
@@ -233,7 +301,7 @@ export const HomePage = () => {
         sx={{
           width: "100%",
           maxWidth: FORM_MAX_WIDTH,
-          maxHeight: FORM_MAX_HEIGHT,
+          // maxHeight: FORM_MAX_HEIGHT,
           display: "flex",
           flexDirection: "column",
         }}
@@ -397,7 +465,7 @@ export const HomePage = () => {
                         </BSForm.Select>
                         <InputField
                           onInputChange={(e: string) => {
-                            console.log(e);
+                            // console.log(e);
                             searchDoctor(e);
                           }}
                           className="col me-4"
@@ -406,18 +474,12 @@ export const HomePage = () => {
                           type="text"
                         />
                       </div>
-                      <div
-                        style={{
-                          opacity:
-                            props.errors.doctorId &&
-                            props.getFieldMeta("doctorId").touched
-                              ? 1
-                              : 0,
-                        }}
-                        className={`transition text-danger px-4 ms-2 pb-2`}
-                      >
-                        Please select a Doctor
-                      </div>
+                      <ShowError
+                        className="ms-4 ps-2"
+                        props={props}
+                        message={props.errors.doctorId || "error"}
+                        field={"doctorId"}
+                      />
 
                       <div
                         className="overflow-auto hideScroll px-4 py-2 border-bottom border-top"
@@ -428,9 +490,16 @@ export const HomePage = () => {
                           data={doctors}
                           selected={props.values.doctorId}
                           onSelect={(id) => {
-                            props.values.doctorId !== id
-                              ? props.setFieldValue("doctorId", id)
-                              : props.setFieldValue("doctorId", "");
+                            // console.log(id);
+                            if (props.values.doctorId !== id) {
+                              props.setFieldValue("doctorId", id);
+                              setSelectedDoctor(
+                                allDoctors.find((doctor) => doctor.id === id)
+                              );
+                            } else {
+                              props.setFieldValue("doctorId", "");
+                              setSelectedDoctor(null);
+                            }
                           }}
                           children={renderGridItem}
                           effectType={"zoom"}
@@ -440,46 +509,93 @@ export const HomePage = () => {
                     <Carousel.Item>
                       <div className="d-flex align-items-center px-5 justify-content-around">
                         <img
-                          src={require("assets/images/typing.png")}
+                          src={require("assets/images/yoyaku.png")}
                           alt="First slide"
                           width={400}
                           height={"auto"}
                         />
                         <div className="col-4">
-                          {/* <InputField
-                            className="mb-2"
-                            label="Your Name"
-                            name="date"
-                            placeholder="Please select a date"
-                            type="date"
-                            min={moment().format("YYYY-MM-DD")}
-                            showError
-                          /> */}
-                          <Label>date: </Label>
-                          <DatePicker
-                            disabledDate={(date) =>
-                              moment(date).isBefore(new Date()) ||
-                              (allDoctors
-                                .find(
-                                  (doctor) =>
-                                    doctor.id.toString() ===
-                                    props.values.doctorId
-                                )
-                                ?.notAvailableDays?.includes(
-                                  parseInt(moment(date).format("W"))
-                                ) || false)
-                            }
-                            style={{ width: 200 }}
-                          />
+                          <div className="mb-2">
+                            <Label>date</Label>
+                            <DatePicker
+                              name="date"
+                              onChange={(date) => {
+                                props.setFieldValue(
+                                  "date",
+                                  date ? moment(date).format("YYYY-MM-DD") : ""
+                                );
+                              }}
+                              disabledDate={(date) => notAvailable(date, props)}
+                              style={{ width: "100%" }}
+                            />
+                            <ShowError
+                              props={props}
+                              message={props.errors.date || "error"}
+                              field={"date"}
+                            />
+                          </div>
 
-                          <InputField
-                            className="mb-2"
-                            label="Your Name"
-                            name="start"
-                            placeholder="Please input your name"
-                            type="time"
-                            showError
-                          />
+                          <div>
+                            <Label>Time</Label>
+                            <DatePicker
+                              disabled={props.values.date === ""}
+                              name="start"
+                              onChange={(date) => {
+                                props.setFieldValue(
+                                  "start",
+                                  date ? moment(date).format("HH:mm") : ""
+                                );
+                              }}
+                              format="HH:mm"
+                              ranges={[]}
+                              hideHours={(hour) => isValidRange(hour, props)}
+                              hideMinutes={(minute) => {
+                                return minute%10 !==0
+                              }}
+                              style={{ width: "100%" }}
+                            />
+                            <ShowError
+                              props={props}
+                              message={props.errors.start || "error"}
+                              field={"start"}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </Carousel.Item>
+
+                    <Carousel.Item>
+                      <div className="d-flex align-items-center px-5 justify-content-around">
+                        <img
+                          src={require("assets/images/typing.png")}
+                          alt="First slide"
+                          width={"50%"}
+                          height={"auto"}
+                        />
+                        <div className="col px-4 py-2">
+                          {
+                            //confirm form data
+                          }
+                          <div className="d-flex mb-2">
+                            <strong className="col-3">Name: </strong>
+                            {props.values.name}
+                          </div>
+                          <div className="d-flex mb-2">
+                            <strong className="col-3">Doctor: </strong>
+                            {selectedDoctor?.name}
+                          </div>
+                          <div className="d-flex mb-2">
+                            <strong className="col-3">Location:</strong>
+                            {`${selectedDoctor?.address.line_2} ${selectedDoctor?.address.line_1} ${selectedDoctor?.address.district} `}
+                          </div>
+                          <div className="d-flex mb-2">
+                            <strong className="col-3">Date: </strong>
+                            {props.values.date}
+                          </div>
+                          <div className="d-flex mb-2">
+                            <strong className="col-3">Time: </strong>
+                            {props.values.start}
+                          </div>
                         </div>
                       </div>
                     </Carousel.Item>

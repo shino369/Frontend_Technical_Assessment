@@ -5,10 +5,12 @@ import storage from "redux-persist/lib/storage";
 import { ThunkAction } from "redux-thunk";
 import auth from "./auth";
 import loading from "./loading";
+import booking from "./booking";
 
 const reducers = combineReducers({
   auth,
   loading,
+  booking,
 });
 
 export type RootState = ReturnType<typeof reducers>;

@@ -1,5 +1,5 @@
 export interface Doctor {
-  id: number;
+  id: string;
   address: Address;
   description: string;
   name: string;
@@ -9,13 +9,7 @@ export interface Doctor {
 }
 
 export interface OpeningHours {
-  MON: StartEnd;
-  TUE: StartEnd;
-  WED: StartEnd;
-  THU: StartEnd;
-  FRI: StartEnd;
-  SAT: StartEnd;
-  SUN: StartEnd;
+  [key: number]:  StartEnd;
 }
 
 export interface StartEnd {
