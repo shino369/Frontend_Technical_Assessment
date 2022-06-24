@@ -26,7 +26,7 @@ import { useDispatch } from "react-redux";
 import { setBooking } from "store/booking";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
-import { addDays } from "rsuite/esm/utils/dateUtils";
+import { addDays, getMinutes } from "rsuite/esm/utils/dateUtils";
 
 const steps = [
   "Fill in your information",
@@ -209,9 +209,31 @@ export const HomePage = () => {
     }
   };
 
+  const getMin = (props:FormikProps<FormItem>) => {
+    const availableRange = selectedDoctor!.reformatted_op_hours;
+    const weekday = moment(props.values.date).weekday();
+    if(availableRange){
+      const start = availableRange[weekday].start
+      // console.log(moment(start, "H.mm").format("HH:mm"))
+      return moment(start, "H.mm").format("HH:mm");
+    }
+    return "";
+  }
+  const getMax = (props:FormikProps<FormItem>) => {
+    const availableRange = selectedDoctor!.reformatted_op_hours;
+    const weekday = moment(props.values.date).weekday();
+    if(availableRange){
+      const end = availableRange[weekday].end
+      console.log(moment(end, "H.mm").format("HH:mm"))
+      return moment(end, "H.mm").format("HH:mm");
+    }
+    return "";
+  }
+
   const isValidRange = (hour: any, props: FormikProps<FormItem>) => {
     const availableRange = selectedDoctor!.reformatted_op_hours;
     const weekday = moment(props.values.date).weekday();
+    
     // console.log(availableRange);
     // console.log(weekday);
     if (availableRange && availableRange[weekday]) {
@@ -554,6 +576,7 @@ export const HomePage = () => {
                               }}
                               style={{ width: "100%" }}
                             />
+
                             <ShowError
                               props={props}
                               message={props.errors.start || "error"}
