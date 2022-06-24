@@ -382,7 +382,7 @@ export const HomePage = () => {
                   }}
                   {...labelProps}
                 >
-                  {index === activeStep ? label : ""}
+                  {isMobile && index === activeStep ? label : isMobile ? "" : label}
                 </StepLabel>
               </Step>
             );
@@ -418,7 +418,7 @@ export const HomePage = () => {
                         <img
                           src={require("assets/images/typing.png")}
                           alt="First slide"
-                          width={400}
+                          width={"50%"}
                           height={"auto"}
                         />
                         <div className={`col-sm-4 col ${isMobile? "w-100":""}`}>
@@ -509,7 +509,7 @@ export const HomePage = () => {
                         <img
                           src={require("assets/images/yoyaku.png")}
                           alt="First slide"
-                          width={400}
+                          width={"50%"}
                           height={"auto"}
                         />
                         <div className={`col-sm-4 col ${isMobile? "w-100":""}`}>
