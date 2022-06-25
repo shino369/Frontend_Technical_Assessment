@@ -12,6 +12,7 @@ import { ReactComponent as ArrowDown } from "assets/icons/arrow-down.svg";
 import { ReactComponent as Options } from "assets/icons/options.svg";
 import { ReactComponent as Doctor } from "assets/icons/doctor.svg";
 import { ReactComponent as Appoint } from "assets/icons/appoint.svg";
+import { ReactComponent as History } from "assets/icons/history.svg";
 
 export interface Props {
   name: string;
@@ -89,6 +90,8 @@ const Icon: React.FC<Props> = ({
         return <Doctor width={size} height={size} fill={color} />;
       case "appoint":
         return <Appoint width={size} height={size} fill={color} />;
+      case "history":
+        return <History width={size} height={size} fill={color} />;
       default:
         return <House width={size} height={size} fill={color} />;
     }

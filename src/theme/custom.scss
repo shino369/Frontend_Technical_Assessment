@@ -172,3 +172,16 @@ p {
 .label{
   @include typography(1rem, 'semibold');
 }
+
+.opacity-toast {
+  background-color: rgba(54, 57, 63, 0.8) !important;
+}
+
+.Toastify__toast {
+  min-height: 3.5rem !important;
+  @include typography(1rem, "regular");
+}
+
+.Toastify__progress-bar-theme--colored{
+  background-color: $secondary !important;
+}

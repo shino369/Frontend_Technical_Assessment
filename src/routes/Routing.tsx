@@ -36,7 +36,7 @@ const userRoutes: Route[] = [
   },
   {
     name: "record",
-    icon: "house-fill",
+    icon: "history",
     group: "",
     path: "/record",
     component: <LazyRecord />,

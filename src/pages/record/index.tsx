@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ConfirmDialog } from "components";
+import { toast } from "react-toastify";
 
 const FORM_MAX_WIDTH = "1280px";
 
@@ -97,18 +98,16 @@ export const RecordPage = () => {
     getRecord();
   }, []);
 
-  const handleSort = useCallback((sortColumn: string, sortType?: 'asc' | 'desc') => {
-    setSortColumn(sortColumn);
-    setSortType(sortType);
-    console.log(sortColumn, sortType);
-    const sortRecord = _.orderBy(
-      record,
-      [sortColumn],
-      [sortType || "asc"]
-    );
-    setRecord(sortRecord);
-
-  }, []);
+  const handleSort = useCallback(
+    (sortColumn: string, sortType?: "asc" | "desc") => {
+      setSortColumn(sortColumn);
+      setSortType(sortType);
+      console.log(sortColumn, sortType);
+      const sortRecord = _.orderBy(record, [sortColumn], [sortType || "asc"]);
+      setRecord(sortRecord);
+    },
+    []
+  );
 
   const handleEditState = (rowData: TableData, cancel?: boolean) => {
     let nextData: TableData[] = Object.assign([], record);
@@ -350,49 +349,99 @@ export const RecordPage = () => {
         </div>
 
         <div className="d-flex flex-column flex-grow-1">
-          <Table
-            height={420}
-            data={record}
-            wordWrap
-            sortColumn={sortColumn}
-            sortType={sortType}
-            onSortColumn={(sortColumn, sortType) => {
-              handleSort(sortColumn, sortType);
-            }}
-          >
-            <Table.Column flexGrow={1} sortable>
-              <Table.HeaderCell>Date</Table.HeaderCell>
-              <EditCell dataKey="date" />
-            </Table.Column>
+          {!isMobile ? (
+            <Table
+              height={420}
+              data={record}
+              wordWrap
+              sortColumn={sortColumn}
+              sortType={sortType}
+              onSortColumn={(sortColumn, sortType) => {
+                handleSort(sortColumn, sortType);
+              }}
+            >
+              <Table.Column flexGrow={1} sortable>
+                <Table.HeaderCell>Date</Table.HeaderCell>
+                <EditCell dataKey="date" />
+              </Table.Column>
 
-            <Table.Column flexGrow={1} sortable>
-              <Table.HeaderCell>Time</Table.HeaderCell>
-              <EditCell dataKey="start" />
-            </Table.Column>
+              <Table.Column flexGrow={1} sortable>
+                <Table.HeaderCell>Time</Table.HeaderCell>
+                <EditCell dataKey="start" />
+              </Table.Column>
 
-            <Table.Column flexGrow={1} sortable>
-              <Table.HeaderCell>Doctor</Table.HeaderCell>
-              <EditCell dataKey="doctor" />
-            </Table.Column>
+              <Table.Column flexGrow={1} sortable>
+                <Table.HeaderCell>Doctor</Table.HeaderCell>
+                <EditCell dataKey="doctor" />
+              </Table.Column>
 
-            <Table.Column flexGrow={2} sortable>
-              <Table.HeaderCell>Location</Table.HeaderCell>
-              <EditCell dataKey="location" />
-            </Table.Column>
+              <Table.Column flexGrow={2} sortable>
+                <Table.HeaderCell>Location</Table.HeaderCell>
+                <EditCell dataKey="location" />
+              </Table.Column>
 
-            <Table.Column flexGrow={1} sortable>
-              <Table.HeaderCell>Status</Table.HeaderCell>
-              <EditCell dataKey="status" />
-            </Table.Column>
+              <Table.Column flexGrow={1} sortable>
+                <Table.HeaderCell>Status</Table.HeaderCell>
+                <EditCell dataKey="status" />
+              </Table.Column>
 
-            <Table.Column flexGrow={1}>
-              <Table.HeaderCell>Action</Table.HeaderCell>
-              <ActionCell dataKey="id" />
-            </Table.Column>
-          </Table>
+              <Table.Column flexGrow={1}>
+                <Table.HeaderCell>Action</Table.HeaderCell>
+                <ActionCell dataKey="id" />
+              </Table.Column>
+            </Table>
+          ) : (
+            <div>
+              {record.map((item, index) => (
+                <div key={index}>
+                  <div className="border-bottom my-2 pb-2">
+                    <div className="d-flex">
+                      <strong className="col-3">Date:</strong>
+                      <div className="ms-2">{item.date}</div>
+                    </div>
+                    <div className="d-flex">
+                      <strong className="col-3">Time:</strong>
+                      <div className="ms-2">{item.start}</div>
+                    </div>
+                    <div className="d-flex">
+                      <strong className="col-3">Doctor:</strong>
+                      <div className="ms-2">{item.doctor}</div>
+                    </div>
+                    <div className="d-flex">
+                      <strong className="col-3">Location:</strong>
+                      <div className="ms-2">{item.location}</div>
+                    </div>
+                    <div className="d-flex">
+                      <strong className="col-3">Status:</strong>
+                      <div className={`ms-2`}>
+                        <span
+                          className={`badge rounded-pill ${
+                            item.status === "confirmed"
+                              ? "bg-secondary"
+                              : "bg-dark"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                        {item.status === "confirmed" && (
+                          <Button
+                            appearance="link"
+                            onClick={() => {
+                              setActiveTable(item);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </Paper>
-
       <ConfirmDialog
         open={activeTable !== undefined}
         title={"Cancel booking?"}

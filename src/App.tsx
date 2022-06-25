@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "routes";
 import { userRoutes } from "routes/Routing";
 import { TOAST_TIME } from "config";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (

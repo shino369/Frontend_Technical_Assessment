@@ -23,6 +23,7 @@ import { DatePicker } from "rsuite";
 import { Label } from "reactstrap";
 import { Carousel, Form as BSForm } from "react-bootstrap";
 import { Box, Button, Paper, Step, StepLabel, Stepper } from "@mui/material";
+import { toast } from "react-toastify";
 
 const steps = [
   "Fill in your information",
@@ -133,6 +134,7 @@ export const HomePage = () => {
     if(activeStep === 1){
       getDoc();
     }
+
   }, [activeStep, getDoc]);
 
   //=============================================================//
@@ -336,7 +338,15 @@ export const HomePage = () => {
       console.log(res);
       // setLoading(false);
       dispatch(setLoading(false));
-      navigate("/record");
+      toast("Appointment made successfully", {
+        theme: "colored",
+        position: "top-right",
+        className: "text-dark",
+      });
+      setTimeout(() => {
+         navigate("/record");
+      }, 500);
+     
     } catch (error) {
       console.log(error);
       dispatch(setLoading(false));
