@@ -28,7 +28,7 @@ const Sidebar: React.FC<Props> = ({
   useEffect(() => {
     setActiveRoute(routeName);
     close();
-  }, [routeName]);
+  }, [close, routeName]);
 
 
   return (

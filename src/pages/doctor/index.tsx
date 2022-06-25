@@ -4,7 +4,7 @@ import { getDoctor } from "services/DoctorService";
 import "./index.scss";
 import { useMediaQuery } from "react-responsive";
 import { Paper } from "@mui/material";
-import _ from "lodash";
+// import _ from "lodash";
 import { useDispatch } from "react-redux";
 import { setLoading } from "store/loading";
 import { useLocation } from "react-router-dom";
@@ -40,10 +40,12 @@ export const DoctorPage = () => {
       console.log(error);
       dispatch(setLoading(false));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getDoc();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderGridItem = () => {

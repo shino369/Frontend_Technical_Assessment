@@ -1,14 +1,13 @@
 import { Doctor } from "models/Doctor";
 import React, { useCallback, useEffect, useState } from "react";
-import { getDoctor, getDoctorList } from "services/DoctorService";
+import { getDoctorList } from "services/DoctorService";
 import "./index.scss";
 import { useMediaQuery } from "react-responsive";
 import { Paper } from "@mui/material";
 import _ from "lodash";
 import { useDispatch } from "react-redux";
 import { setLoading } from "store/loading";
-import { useLocation } from "react-router-dom";
-import { Booking, WEEK, WEEKDAYS, WEEKMAPPER } from "models/Booking";
+import { Booking, WEEKDAYS, WEEKMAPPER } from "models/Booking";
 import { getBookingList, patchBooking } from "services/bookingService";
 import { Table, Button, DatePicker } from "rsuite";
 import moment from "moment";
@@ -16,7 +15,6 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ConfirmDialog } from "components";
-import { toast } from "react-toastify";
 
 const FORM_MAX_WIDTH = "1280px";
 
@@ -44,7 +42,7 @@ export const RecordPage = () => {
     ["date", true],
   ]);
   const [activeTable, setActiveTable] = useState<TableData | undefined>();
-  const { control, formState, handleSubmit, getValues, setValue } = useForm({
+  const { control, getValues, setValue } = useForm({
     resolver: yupResolver(schema),
   });
 
@@ -92,10 +90,12 @@ export const RecordPage = () => {
       console.log(error);
       dispatch(setLoading(false));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getRecord();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSort = useCallback(
@@ -106,6 +106,7 @@ export const RecordPage = () => {
       const sortRecord = _.orderBy(record, [sortColumn], [sortType || "asc"]);
       setRecord(sortRecord);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -132,34 +133,34 @@ export const RecordPage = () => {
     }
   };
 
-  const onSubmit = async (data: any) => {
-    console.log(data);
-    try {
-      dispatch(setLoading(true));
-      const res = await patchBooking(data.id, {
-        date: moment(data.date).format("YYYY-MM-DD"),
-        start: parseInt(moment(data.start).format("HH:mm").split(":")[0]),
-        status: "confirmed",
-      });
+  // const onSubmit = async (data: any) => {
+  //   console.log(data);
+  //   try {
+  //     dispatch(setLoading(true));
+  //     const res = await patchBooking(data.id, {
+  //       date: moment(data.date).format("YYYY-MM-DD"),
+  //       start: parseInt(moment(data.start).format("HH:mm").split(":")[0]),
+  //       status: "confirmed",
+  //     });
 
-      setRecord((old) =>
-        old.map((item) => ({
-          ...item,
-          action: null,
-        }))
-      );
+  //     setRecord((old) =>
+  //       old.map((item) => ({
+  //         ...item,
+  //         action: null,
+  //       }))
+  //     );
 
-      dispatch(setLoading(false));
-    } catch (error) {
-      console.log(error);
-      dispatch(setLoading(false));
-    }
-  };
+  //     dispatch(setLoading(false));
+  //   } catch (error) {
+  //     console.log(error);
+  //     dispatch(setLoading(false));
+  //   }
+  // };
 
   const onCancel = async () => {
     if (activeTable) {
       try {
-        const res = await patchBooking(activeTable.id, {
+        await patchBooking(activeTable.id, {
           status: "cancelled",
         });
         getRecord();
@@ -291,7 +292,7 @@ export const RecordPage = () => {
   };
 
   const ActionCell = (props: any) => {
-    const { rowData, onClick } = props;
+    const { rowData } = props;
     return (
       <Table.Cell {...props} style={{ padding: "6px" }}>
         {/* <Button

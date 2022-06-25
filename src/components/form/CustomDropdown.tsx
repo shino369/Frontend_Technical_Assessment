@@ -1,4 +1,4 @@
-import { Dropdown, IconButton, Popover, Whisper } from "rsuite";
+import { Dropdown } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import "./CustomDropdown.scss";
 import TrashIcon from "@rsuite/icons/Trash";

@@ -121,6 +121,7 @@ export const HomePage = () => {
       setErrorMessage(`Failed to get doctor list : ${error?.message}. Try again?`);
       setShowDialog(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // useEffect(() => {

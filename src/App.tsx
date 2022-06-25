@@ -1,8 +1,7 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.scss";
 import { ToastContainer } from "react-toastify";
-import { CommonWrapper, SpinnerComponent } from "components";
+import { SpinnerComponent } from "components";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "routes";
 import { userRoutes } from "routes/Routing";
