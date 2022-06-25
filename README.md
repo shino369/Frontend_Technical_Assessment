@@ -1,6 +1,6 @@
 # Doctor Booking System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).\
 Author: Anthony Wong
 ## Overview
 
@@ -48,7 +48,7 @@ Formik:
 react-hook-form: 
 >use for update booking record.
 >>benefit - easy to use. input can be wrapped by controller. submit button can be placed anywhere.\
->>drawback - no.\
+>>drawback - no.
 
 
 ### `Potential Improvement`
