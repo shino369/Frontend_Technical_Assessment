@@ -1,36 +1,28 @@
-import { Doctor, Weekdays } from "models/Doctor";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getDoctorList } from "services/DoctorService";
 import "./index.scss";
-import { useMediaQuery } from "react-responsive";
-// mui
-import {
-  Box,
-  Button,
-  Paper,
-  Step,
-  StepContent,
-  StepLabel,
-  Stepper,
-  Typography,
-} from "@mui/material";
-import { Carousel, Form as BSForm } from "react-bootstrap";
-import { Form, Formik, FormikHelpers, FormikProps } from "formik";
-import * as Yup from "yup";
-import { EffectGrid, InputField, ShowError } from "components";
-import _, { values } from "lodash";
-import moment from "moment";
-import { DatePicker } from "rsuite";
-import { Label } from "reactstrap";
-import { useDispatch } from "react-redux";
-import { setBooking } from "store/booking";
-import { useSelector } from "react-redux";
-import { RootState } from "store";
-import { addDays, getMinutes } from "rsuite/esm/utils/dateUtils";
-import { setLoading } from "store/loading";
+import { EffectGrid, InputField, ShowError, ConfirmDialog } from "components";
+import { getDoctorList } from "services/DoctorService";
 import { postBooking } from "services/bookingService";
 import { WEEK, WEEKDAYS, WEEKMAPPER } from "models/Booking";
+import { Doctor } from "models/Doctor";
 import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
+import _ from "lodash";
+import moment from "moment";
+// form
+import { Form, Formik, FormikHelpers, FormikProps } from "formik";
+import * as Yup from "yup";
+// redux
+import { useDispatch } from "react-redux";
+// import { useSelector } from "react-redux";
+// import { RootState } from "store";
+import { setLoading } from "store/loading";
+// import { setBooking } from "store/booking";
+// UI library
+import { DatePicker } from "rsuite";
+import { Label } from "reactstrap";
+import { Carousel, Form as BSForm } from "react-bootstrap";
+import { Box, Button, Paper, Step, StepLabel, Stepper } from "@mui/material";
 
 const steps = [
   "Fill in your information",
@@ -64,7 +56,6 @@ type FormItem = {
 const CARD_HEIGHT = 100;
 const FORM_MAX_WIDTH = "1280px";
 const FORM_MAX_HEIGHT = "calc(60vh - 48px - 3.5rem)";
-const today = new Date();
 
 export const HomePage = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
@@ -74,25 +65,35 @@ export const HomePage = () => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [ready, setReady] = useState<boolean>(false);
   const [location, setLocation] = useState<string>("");
-  const [doctorName, setDoctorName] = useState<string>("");
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // const { booking } = useSelector((rootState: RootState) => rootState.booking);
 
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
+  //=============================================================//
+  //  handle stepper                                             //
+  //=============================================================//
+
+  // const handleNext = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  // };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  // const handleReset = () => {
+  //   setActiveStep(0);
+  // };
 
+  //=============================================================//
+  //  get doctor list                                            //
+  //=============================================================//
   const getDoc = useCallback(async () => {
     try {
+      setReady(false);
+      dispatch(setLoading(true));
       const data = await getDoctorList();
       const _data = data.map((item) => ({
         ...item,
@@ -109,21 +110,34 @@ export const HomePage = () => {
       // console.log(_data);
       setDoctors(_data);
       setAllDoctors(_data);
-    } catch (error) {
+      dispatch(setLoading(false));
+      setTimeout(() => {
+        setReady(true);
+      }, 200); 
+    } catch (error: any) {
+      dispatch(setLoading(false));
       console.log(error);
+      setErrorMessage(`Failed to get doctor list : ${error?.message}. Try again?`);
+      setShowDialog(true);
     }
   }, []);
 
-  useEffect(() => {
-    getDoc();
-  }, []);
+  // useEffect(() => {
+  //   getDoc();
+  // }, []);
 
+  //=============================================================//
+  //  for retrigger grid effect                                  //
+  //=============================================================//
   useEffect(() => {
-    setReady(false);
-    setTimeout(() => {
-      setReady(true);
-    }, 200);
-  }, [activeStep]);
+    if(activeStep === 1){
+      getDoc();
+    }
+  }, [activeStep, getDoc]);
+
+  //=============================================================//
+  //  for fake searching effect                                  //
+  //=============================================================//
 
   useEffect(() => {
     if (location === "all") {
@@ -155,6 +169,10 @@ export const HomePage = () => {
     [allDoctors]
   );
 
+  //=============================================================//
+  // check form valid when button pressed                        //
+  //=============================================================//
+
   const checkValid = (props: FormikProps<FormItem>) => {
     let valid = false;
     let fields: string[] = [];
@@ -179,6 +197,8 @@ export const HomePage = () => {
     }
 
     if (valid) {
+      // dispatch to redux if needed
+
       // console.log(booking);
       // dispatch(
       //   setBooking({
@@ -197,26 +217,9 @@ export const HomePage = () => {
     }
   };
 
-  // const getMin = (props: FormikProps<FormItem>) => {
-  //   const availableRange = selectedDoctor!.reformatted_op_hours;
-  //   const weekday = moment(props.values.date).weekday();
-  //   if (availableRange) {
-  //     const start = availableRange[weekday].start;
-
-  //     return moment(start, "H.mm").format("HH:mm");
-  //   }
-  //   return "";
-  // };
-  // const getMax = (props: FormikProps<FormItem>) => {
-  //   const availableRange = selectedDoctor!.reformatted_op_hours;
-  //   const weekday = moment(props.values.date).weekday();
-  //   if (availableRange) {
-  //     const end = availableRange[weekday].end;
-
-  //     return moment(end, "H.mm").format("HH:mm");
-  //   }
-  //   return "";
-  // };
+  //=============================================================//
+  // check if selected timeslot is valid (for manual input)      //
+  //=============================================================//
 
   const isValidRange = (date: Date, props: FormikProps<FormItem>) => {
     const availableRange = selectedDoctor!.reformatted_op_hours;
@@ -238,36 +241,43 @@ export const HomePage = () => {
     return false;
   };
 
+  //=============================================================//
+  //  hide not available hour                                    //
+  //=============================================================//
+
   const isValidHour = (hour: number, props: FormikProps<FormItem>) => {
     const availableRange = selectedDoctor!.reformatted_op_hours;
     const weekday = moment(props.values.date).weekday();
+    const _hour = moment(`${hour}:00`, "H:mm");
 
     if (availableRange && availableRange[weekday]) {
+      const start = moment(availableRange[weekday]?.start, "H.mm");
+      const end = moment(availableRange[weekday]?.end, "H.mm");
       if (
-        hour < parseInt(availableRange[weekday]?.start.split(".")[0]) ||
-        hour > parseInt(availableRange[weekday]?.end.split(".")[0])
+        _hour.isAfter(start) && _hour.isBefore(end)
       ) {
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   };
+
+  //=============================================================//
+  //  disable not available date/weekdays                        //
+  //=============================================================//
 
   const notAvailable = (
     date: Date | undefined,
     props: FormikProps<FormItem>
   ) => {
     // console.log(moment(date).weekday());
-
     if (moment(date).isBefore(new Date())) {
       return true;
     }
-
     const doc = allDoctors.find(
       (doctor) => doctor.id === props.values.doctorId
     );
     // doc!.notAvailableDays = [1,2,3]    // check if work by test data
-
     if (doc && doc.notAvailableDays) {
       if (doc.notAvailableDays.length === 0) {
         return false;
@@ -275,10 +285,12 @@ export const HomePage = () => {
         return doc.notAvailableDays.includes(moment(date).weekday());
       }
     }
-
     return false;
   };
 
+  //=============================================================//
+  //  grid item                                                  //
+  //=============================================================//
   const renderGridItem = (doctor: Doctor, index: number) => {
     return (
       <div
@@ -304,6 +316,10 @@ export const HomePage = () => {
       </div>
     );
   };
+
+  //=============================================================//
+  //  form submit                                                //
+  //=============================================================//
 
   const onSubmit = async (
     values: FormItem,
@@ -382,301 +398,324 @@ export const HomePage = () => {
                   }}
                   {...labelProps}
                 >
-                  {isMobile && index === activeStep ? label : isMobile ? "" : label}
+                  {isMobile && index === activeStep
+                    ? label
+                    : isMobile
+                    ? ""
+                    : label}
                 </StepLabel>
               </Step>
             );
           })}
         </Stepper>
-        {activeStep !== steps.length && (
-          <div className="d-flex flex-column flex-grow-1">
-            <Formik
-              initialValues={{
-                name: "",
-                start: "",
-                docName: "",
-                doctorId: "",
-                date: "",
-              }}
-              validationSchema={Schema}
-              onSubmit={onSubmit}
-            >
-              {(props) => (
-                <Form
-                  className="d-flex flex-column flex-grow-1"
-                  onChange={() => {}}
+
+        <div className="d-flex flex-column flex-grow-1">
+          <Formik
+            initialValues={{
+              name: "",
+              start: "",
+              docName: "",
+              doctorId: "",
+              date: "",
+            }}
+            validationSchema={Schema}
+            onSubmit={onSubmit}
+          >
+            {(props) => (
+              <Form
+                className="d-flex flex-column flex-grow-1"
+                onChange={() => {}}
+              >
+                <Carousel
+                  className="flex-grow-1"
+                  indicators={false}
+                  controls={false}
+                  variant="dark"
+                  activeIndex={activeStep}
                 >
-                  <Carousel
-                    className="flex-grow-1"
-                    indicators={false}
-                    controls={false}
-                    variant="dark"
-                    activeIndex={activeStep}
-                  >
-                    <Carousel.Item>
-                      <div className="d-flex flex-column flex-sm-row align-items-center px-sm-5 justify-content-around">
-                        <img
-                          src={require("assets/images/typing.png")}
-                          alt="First slide"
-                          width={"50%"}
-                          height={"auto"}
+                  <Carousel.Item>
+                    <div className="d-flex flex-column flex-sm-row align-items-center px-sm-5 justify-content-around">
+                      <img
+                        src={require("assets/images/typing.png")}
+                        alt="First slide"
+                        width={"50%"}
+                        height={"auto"}
+                      />
+                      <div
+                        className={`col-sm-4 col ${isMobile ? "w-100" : ""}`}
+                      >
+                        <InputField
+                          label="Your Name"
+                          name="name"
+                          placeholder="Please input your name"
+                          type="text"
+                          showError
                         />
-                        <div className={`col-sm-4 col ${isMobile? "w-100":""}`}>
-                          <InputField
-                            label="Your Name"
-                            name="name"
-                            placeholder="Please input your name"
-                            type="text"
-                            showError
+                      </div>
+                    </div>
+                  </Carousel.Item>
+                  <Carousel.Item>
+                    <div className="d-flex align-items-center justify-content-center pb-2 pt-2 px-2">
+                      <BSForm.Select
+                        onChange={(e) => {
+                          setLocation(e.target.value);
+                        }}
+                        value={location}
+                        className={`${
+                          location === "" ? "text-muted" : ""
+                        } col-3 w-25 mx-4`}
+                        id="district"
+                        aria-label="Default select example"
+                      >
+                        <option disabled value="">
+                          Choose Location
+                        </option>
+                        <option value="all">All</option>
+                        {_.uniqBy(allDoctors, "address.district").map(
+                          (doctor, index) => (
+                            <option key={index} value={doctor.address.district}>
+                              {doctor.address.district}
+                            </option>
+                          )
+                        )}
+                      </BSForm.Select>
+                      <InputField
+                        onInputChange={(e: string) => {
+                          // console.log(e);
+                          searchDoctor(e);
+                        }}
+                        className="col me-4"
+                        name="docName"
+                        placeholder="Input doctor name to search"
+                        type="text"
+                      />
+                    </div>
+                    <ShowError
+                      className="ms-4 ps-2"
+                      props={props}
+                      message={props.errors.doctorId || "-"}
+                      field={"doctorId"}
+                    />
+
+                    <div
+                      className="overflow-auto hideScroll px-4 py-2 border-bottom border-top mb-2"
+                      style={{ maxHeight: isMobile ? "" : FORM_MAX_HEIGHT }}
+                    >
+                      <EffectGrid
+                        isMobile={isMobile}
+                        checked={ready}
+                        data={doctors}
+                        selected={props.values.doctorId}
+                        onSelect={(id) => {
+                          // console.log(id);
+                          if (props.values.doctorId !== id) {
+                            props.setFieldValue("doctorId", id);
+                            setSelectedDoctor(
+                              allDoctors.find((doctor) => doctor.id === id)
+                            );
+                          } else {
+                            props.setFieldValue("doctorId", "");
+                            setSelectedDoctor(null);
+                          }
+                        }}
+                        children={renderGridItem}
+                        effectType={"zoom"}
+                      />
+                    </div>
+                  </Carousel.Item>
+                  <Carousel.Item>
+                    <div className="d-flex flex-column flex-sm-row align-items-center px-sm-5 justify-content-around">
+                      <img
+                        src={require("assets/images/yoyaku.png")}
+                        alt="First slide"
+                        width={"50%"}
+                        height={"auto"}
+                      />
+                      <div
+                        className={`col-sm-4 col ${isMobile ? "w-100" : ""}`}
+                      >
+                        <div className="d-flex">
+                          <div className="me-4">
+                            <strong>Dr. {selectedDoctor?.name}</strong>
+                          </div>
+                          <div className="col">
+                            {WEEK.map((day, index) => (
+                              <div key={index} className="d-flex">
+                                <div className="col">{day}:</div>
+                                <div className="">
+                                  {
+                                    selectedDoctor?.reformatted_op_hours[index]
+                                      ?.start
+                                  }
+                                  -
+                                  {
+                                    selectedDoctor?.reformatted_op_hours[index]
+                                      ?.end
+                                  }
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="mb-2">
+                          <Label>date</Label>
+                          <DatePicker
+                            placement="auto"
+                            name="date"
+                            onChange={(date) => {
+                              props.setFieldValue(
+                                "date",
+                                date ? moment(date).format("YYYY-MM-DD") : ""
+                              );
+                            }}
+                            disabledDate={(date) => notAvailable(date, props)}
+                            style={{ width: "100%" }}
+                          />
+                          <ShowError
+                            props={props}
+                            message={props.errors.date || "-"}
+                            field={"date"}
+                          />
+                        </div>
+
+                        <div>
+                          <Label>Time</Label>
+                          <DatePicker
+                            placement="auto"
+                            disabled={props.values.date === ""}
+                            name="start"
+                            onChange={(date) => {
+                              if (date && isValidRange(date, props)) {
+                                props.setFieldValue(
+                                  "start",
+                                  date ? moment(date).format("HH:mm") : ""
+                                );
+                              } else {
+                                props.setFieldValue("start", "");
+                              }
+                            }}
+                            format="HH:mm"
+                            ranges={[]}
+                            hideHours={(hour) => isValidHour(hour, props)}
+                            hideMinutes={(minute) => {
+                              return minute % 60 !== 0;
+                            }}
+                            style={{ width: "100%" }}
+                          />
+
+                          <ShowError
+                            props={props}
+                            message={props.errors.start || "-"}
+                            field={"start"}
                           />
                         </div>
                       </div>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                      <div className="d-flex align-items-center justify-content-center pb-2 pt-2 px-2">
-                        <BSForm.Select
-                          onChange={(e) => {
-                            setLocation(e.target.value);
-                          }}
-                          value={location}
-                          className={`${
-                            location === "" ? "text-muted" : ""
-                          } col-3 w-25 mx-4`}
-                          id="district"
-                          aria-label="Default select example"
-                        >
-                          <option disabled value="">
-                            Choose Location
-                          </option>
-                          <option value="all">All</option>
-                          {_.uniqBy(allDoctors, "address.district").map(
-                            (doctor, index) => (
-                              <option
-                                key={index}
-                                value={doctor.address.district}
-                              >
-                                {doctor.address.district}
-                              </option>
-                            )
-                          )}
-                        </BSForm.Select>
-                        <InputField
-                          onInputChange={(e: string) => {
-                            // console.log(e);
-                            searchDoctor(e);
-                          }}
-                          className="col me-4"
-                          name="docName"
-                          placeholder="Input doctor name to search"
-                          type="text"
-                        />
-                      </div>
-                      <ShowError
-                        className="ms-4 ps-2"
-                        props={props}
-                        message={props.errors.doctorId || "-"}
-                        field={"doctorId"}
+                    </div>
+                  </Carousel.Item>
+
+                  <Carousel.Item>
+                    <div className="d-flex flex-column flex-sm-row align-items-center px-sm-5 justify-content-around">
+                      <img
+                        src={require("assets/images/typing.png")}
+                        alt="First slide"
+                        width={"50%"}
+                        height={"auto"}
                       />
-
-                      <div
-                        className="overflow-auto hideScroll px-4 py-2 border-bottom border-top mb-2"
-                        style={{ maxHeight: isMobile ? "" : FORM_MAX_HEIGHT }}
-                      >
-                        <EffectGrid
-                          isMobile={isMobile}
-                          checked={ready}
-                          data={doctors}
-                          selected={props.values.doctorId}
-                          onSelect={(id) => {
-                            // console.log(id);
-                            if (props.values.doctorId !== id) {
-                              props.setFieldValue("doctorId", id);
-                              setSelectedDoctor(
-                                allDoctors.find((doctor) => doctor.id === id)
-                              );
-                            } else {
-                              props.setFieldValue("doctorId", "");
-                              setSelectedDoctor(null);
-                            }
-                          }}
-                          children={renderGridItem}
-                          effectType={"zoom"}
-                        />
-                      </div>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                      <div className="d-flex flex-column flex-sm-row align-items-center px-sm-5 justify-content-around">
-                        <img
-                          src={require("assets/images/yoyaku.png")}
-                          alt="First slide"
-                          width={"50%"}
-                          height={"auto"}
-                        />
-                        <div className={`col-sm-4 col ${isMobile? "w-100":""}`}>
-                          <div className="d-flex">
-                            <div className="me-4">
-                              <strong>Dr. {selectedDoctor?.name}</strong>
-                            </div>
-                            <div className="col">
-                              {WEEK.map((day, index) => (
-                                <div key={index} className="d-flex">
-                                  <div className="col">{day}:</div>
-                                  <div className="">
-                                    {
-                                      selectedDoctor?.reformatted_op_hours[
-                                        index
-                                      ]?.start
-                                    }
-                                    -
-                                    {
-                                      selectedDoctor?.reformatted_op_hours[
-                                        index
-                                      ]?.end
-                                    }
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="mb-2">
-                            <Label>date</Label>
-                            <DatePicker
-                              name="date"
-                              onChange={(date) => {
-                                props.setFieldValue(
-                                  "date",
-                                  date ? moment(date).format("YYYY-MM-DD") : ""
-                                );
-                              }}
-                              disabledDate={(date) => notAvailable(date, props)}
-                              style={{ width: "100%" }}
-                            />
-                            <ShowError
-                              props={props}
-                              message={props.errors.date || "-"}
-                              field={"date"}
-                            />
-                          </div>
-
-                          <div>
-                            <Label>Time</Label>
-                            <DatePicker
-                              disabled={props.values.date === ""}
-                              name="start"
-                              onChange={(date) => {
-                                if (date && isValidRange(date, props)) {
-                                  props.setFieldValue(
-                                    "start",
-                                    date ? moment(date).format("HH:mm") : ""
-                                  );
-                                } else {
-                                  props.setFieldValue("start", "");
-                                }
-                              }}
-                              format="HH:mm"
-                              ranges={[]}
-                              hideHours={(hour) => isValidHour(hour, props)}
-                              hideMinutes={(minute) => {
-                                return minute % 60 !== 0;
-                              }}
-                              style={{ width: "100%" }}
-                            />
-
-                            <ShowError
-                              props={props}
-                              message={props.errors.start || "-"}
-                              field={"start"}
-                            />
-                          </div>
+                      <div className="col px-4 py-2">
+                        {
+                          //confirm form data
+                        }
+                        <div className="d-flex mb-2">
+                          <strong className="col-3">Name: </strong>
+                          {props.values.name}
+                        </div>
+                        <div className="d-flex mb-2">
+                          <strong className="col-3">Doctor: </strong>
+                          {selectedDoctor?.name}
+                        </div>
+                        <div className="d-flex mb-2">
+                          <strong className="col-3">Location:</strong>
+                          {`${selectedDoctor?.address.line_2} ${selectedDoctor?.address.line_1} ${selectedDoctor?.address.district} `}
+                        </div>
+                        <div className="d-flex mb-2">
+                          <strong className="col-3">Date: </strong>
+                          {props.values.date}
+                        </div>
+                        <div className="d-flex mb-2">
+                          <strong className="col-3">Time: </strong>
+                          {props.values.start}
                         </div>
                       </div>
-                    </Carousel.Item>
+                    </div>
+                  </Carousel.Item>
+                </Carousel>
 
-                    <Carousel.Item>
-                      <div className="d-flex flex-column flex-sm-row align-items-center px-sm-5 justify-content-around">
-                        <img
-                          src={require("assets/images/typing.png")}
-                          alt="First slide"
-                          width={"50%"}
-                          height={"auto"}
-                        />
-                        <div className="col px-4 py-2">
-                          {
-                            //confirm form data
-                          }
-                          <div className="d-flex mb-2">
-                            <strong className="col-3">Name: </strong>
-                            {props.values.name}
-                          </div>
-                          <div className="d-flex mb-2">
-                            <strong className="col-3">Doctor: </strong>
-                            {selectedDoctor?.name}
-                          </div>
-                          <div className="d-flex mb-2">
-                            <strong className="col-3">Location:</strong>
-                            {`${selectedDoctor?.address.line_2} ${selectedDoctor?.address.line_1} ${selectedDoctor?.address.district} `}
-                          </div>
-                          <div className="d-flex mb-2">
-                            <strong className="col-3">Date: </strong>
-                            {props.values.date}
-                          </div>
-                          <div className="d-flex mb-2">
-                            <strong className="col-3">Time: </strong>
-                            {props.values.start}
-                          </div>
-                        </div>
-                      </div>
-                    </Carousel.Item>
-                  </Carousel>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      pt: 2,
-                      p: isMobile ? 0 : 4,
-                    }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    pt: 2,
+                    p: isMobile ? 0 : 4,
+                  }}
+                >
+                  <Button
+                    color="inherit"
+                    disabled={activeStep === 0}
+                    onClick={handleBack}
+                    sx={{ mr: 1 }}
                   >
+                    Back
+                  </Button>
+                  <Box sx={{ flex: "1 1 auto" }} />
+                  {activeStep < steps.length - 1 && (
                     <Button
-                      color="inherit"
-                      disabled={activeStep === 0}
-                      onClick={handleBack}
-                      sx={{ mr: 1 }}
+                      color="info"
+                      variant="contained"
+                      onClick={() => {
+                        checkValid(props);
+                      }}
                     >
-                      Back
+                      Next
                     </Button>
-                    <Box sx={{ flex: "1 1 auto" }} />
-                    {activeStep < steps.length - 1 && (
-                      <Button
-                        color="info"
-                        variant="contained"
-                        onClick={() => {
-                          checkValid(props);
-                        }}
-                      >
-                        Next
-                      </Button>
-                    )}{" "}
-                    {activeStep === steps.length - 1 && (
-                      <Button
-                        color="info"
-                        type="submit"
-                        variant="contained"
-                        onClick={() => {
-                          checkValid(props);
-                        }}
-                      >
-                        Submit
-                      </Button>
-                    )}
-                  </Box>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        )}
+                  )}
+                  {activeStep === steps.length - 1 && (
+                    <Button
+                      color="info"
+                      type="submit"
+                      variant="contained"
+                      onClick={() => {
+                        checkValid(props);
+                      }}
+                    >
+                      Submit
+                    </Button>
+                  )}
+                </Box>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </Paper>
+
+      <ConfirmDialog
+        open={showDialog}
+        title={"Error occurred"}
+        message={errorMessage}
+        onConfirm={
+          ()=>{
+            setShowDialog(false);
+            setErrorMessage("");
+            getDoc()
+          }
+        }
+        onCancel={
+          ()=>{
+            setShowDialog(false);
+            setErrorMessage("");
+          }
+        }
+      />
     </div>
   );
 };

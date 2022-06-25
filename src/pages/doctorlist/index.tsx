@@ -1,55 +1,29 @@
-import { Doctor, Weekdays } from "models/Doctor";
+import { Doctor } from "models/Doctor";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getDoctorList } from "services/DoctorService";
 import "./index.scss";
 import { useMediaQuery } from "react-responsive";
-// mui
-import {
-  Box,
-  Button,
-  Paper,
-  Step,
-  StepContent,
-  StepLabel,
-  Stepper,
-  Typography,
-} from "@mui/material";
-import { Carousel, Form as BSForm } from "react-bootstrap";
-import { Form, Formik, FormikHelpers, FormikProps } from "formik";
-import * as Yup from "yup";
-import { EffectGrid, InputField, ShowError } from "components";
-import _, { values } from "lodash";
-import moment from "moment";
-import { DatePicker, Input } from "rsuite";
-import { Label } from "reactstrap";
+import { Paper } from "@mui/material";
+import { Form as BSForm } from "react-bootstrap";
+import { ConfirmDialog, EffectGrid } from "components";
+import _ from "lodash";
+import { Input } from "rsuite";
 import { useDispatch } from "react-redux";
-import { setBooking } from "store/booking";
-import { useSelector } from "react-redux";
-import { RootState } from "store";
-import { addDays, getMinutes } from "rsuite/esm/utils/dateUtils";
 import { setLoading } from "store/loading";
-import { postBooking } from "services/bookingService";
 import { useNavigate } from "react-router-dom";
 import { WEEKDAYS, WEEKMAPPER } from "models/Booking";
-
-type FormItem = {
-  name: string;
-  docName: string;
-  start: string;
-  doctorId: string;
-  date: string;
-};
 
 const CARD_HEIGHT = 100;
 const FORM_MAX_WIDTH = "1280px";
 const FORM_MAX_HEIGHT = "calc(60vh - 48px - 3.5rem)";
-const today = new Date();
 
 export const DoctorListPage = () => {
   const isMobile = useMediaQuery({ query: `(max-width: 576px)` });
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
   const [location, setLocation] = useState<string>("");
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -73,9 +47,11 @@ export const DoctorListPage = () => {
       setDoctors(_data);
       setAllDoctors(_data);
       dispatch(setLoading(false));
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       dispatch(setLoading(false));
+      setErrorMessage(`Failed to get doctor list : ${error?.message}. Try again?`);
+      setShowDialog(true);
     }
   }, []);
 
@@ -213,6 +189,24 @@ export const DoctorListPage = () => {
           </div>
         </div>
       </Paper>
+      <ConfirmDialog
+        open={showDialog}
+        title={"Error occurred"}
+        message={errorMessage}
+        onConfirm={
+          ()=>{
+            setShowDialog(false);
+            setErrorMessage("");
+            getDoc()
+          }
+        }
+        onCancel={
+          ()=>{
+            setShowDialog(false);
+            setErrorMessage("");
+          }
+        }
+      />
     </div>
   );
 };

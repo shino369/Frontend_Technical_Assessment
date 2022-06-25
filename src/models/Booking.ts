@@ -14,6 +14,14 @@ export interface BookingRequest {
   date: string;
 }
 
+export interface PatchBookingRequest {
+  name?: string;
+  start?: string | number;
+  doctorId?: string;
+  date?: string;
+  status?: 'confirmed' | 'cancelled';
+}
+
 export enum WEEKDAYS {
   MON,
   TUE,

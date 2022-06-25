@@ -3,37 +3,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getDoctor } from "services/DoctorService";
 import "./index.scss";
 import { useMediaQuery } from "react-responsive";
-// mui
 import { Paper } from "@mui/material";
-
-import _, { values } from "lodash";
-import moment from "moment";
-
+import _ from "lodash";
 import { useDispatch } from "react-redux";
 import { setLoading } from "store/loading";
 import { useLocation } from "react-router-dom";
-import { WEEK } from "models/Booking";
+import { WEEK, WEEKDAYS, WEEKMAPPER } from "models/Booking";
 
-enum WEEKDAYS {
-  MON,
-  TUE,
-  WED,
-  THU,
-  FRI,
-  SAT,
-  SUN,
-}
-const WEEKMAPPER = {
-  MON: 1,
-  TUE: 2,
-  WED: 3,
-  THU: 4,
-  FRI: 5,
-  SAT: 6,
-  SUN: 0,
-};
 
-const CARD_HEIGHT = 100;
 const FORM_MAX_WIDTH = "1280px";
 
 export const DoctorPage = () => {

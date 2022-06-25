@@ -1,10 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Switch from "@mui/material/Switch";
-import Paper from "@mui/material/Paper";
 import Zoom from "@mui/material/Zoom";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { Theme } from "@mui/material/styles";
 import CheckRoundIcon from "@rsuite/icons/CheckRound";
 
 interface Props {

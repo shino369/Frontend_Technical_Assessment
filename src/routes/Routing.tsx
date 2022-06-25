@@ -1,6 +1,7 @@
 import { LazyHome } from "pages";
 import { LazyDoctor } from "pages/doctor/lazy";
 import { LazyDoctorList } from "pages/doctorlist/lazy";
+import { LazyRecord } from "pages/record/lazy";
 import { Navigate } from "react-router-dom";
 interface Route {
   name: string;
@@ -32,6 +33,13 @@ const userRoutes: Route[] = [
     group: "hidden",
     path: "/doctor/:id",
     component: <LazyDoctor />,
+  },
+  {
+    name: "record",
+    icon: "house-fill",
+    group: "",
+    path: "/record",
+    component: <LazyRecord />,
   },
   // 404
   {
