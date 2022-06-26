@@ -47,18 +47,20 @@ export const DoctorListPage = () => {
       setDoctors(_data);
       setAllDoctors(_data);
       dispatch(setLoading(false));
-    } catch (error:any) {
+    } catch (error: any) {
       console.log(error);
       dispatch(setLoading(false));
-      setErrorMessage(`Failed to get doctor list : ${error?.message}. Try again?`);
+      setErrorMessage(
+        `Failed to get doctor list : ${error?.message}. Try again?`
+      );
       setShowDialog(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getDoc();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export const DoctorListPage = () => {
         (e: string) => {
           setDoctors(
             allDoctors.filter((doctor) =>
-              doctor.name.includes(e.toLocaleUpperCase())
+              doctor.name.toUpperCase().includes(e.toUpperCase())
             )
           );
         },
@@ -195,19 +197,15 @@ export const DoctorListPage = () => {
         open={showDialog}
         title={"Error occurred"}
         message={errorMessage}
-        onConfirm={
-          ()=>{
-            setShowDialog(false);
-            setErrorMessage("");
-            getDoc()
-          }
-        }
-        onCancel={
-          ()=>{
-            setShowDialog(false);
-            setErrorMessage("");
-          }
-        }
+        onConfirm={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+          getDoc();
+        }}
+        onCancel={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+        }}
       />
     </div>
   );

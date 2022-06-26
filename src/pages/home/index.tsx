@@ -162,7 +162,7 @@ export const HomePage = () => {
         (e: string) => {
           setDoctors(
             allDoctors.filter((doctor) =>
-              doctor.name.includes(e.toLocaleUpperCase())
+              doctor.name.toUpperCase().includes(e.toUpperCase())
             )
           );
         },
