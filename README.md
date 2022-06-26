@@ -7,6 +7,13 @@ Author: Anthony Wong
 Code test for Bowtie frontend engineer interview.\
 Perform CRUD for doctor appointment.\
 
+Feature:
+
+- user can make appointment
+- user can see appointment record
+- user can search doctor
+- user can see doctor detail
+
 [URL of deployed site in netlify](https://62b76949fe722135ab6bb13b--loquacious-cassata-5727ac.netlify.app/)
 
 ### `Choice of Package`
@@ -67,9 +74,9 @@ if (process.env.NODE_ENV === "production") {
 
 ### `Assumptions`
 
-I assumed that record after submit can be amended, i.e. date/timeslot, and the API scheme also stated that it accept the fields, but as a result only confirmed/cancelled can be changed.\
-And the list cannot be sorted by created time.
+I first assumed that record after submit can be amended, i.e. date/timeslot, and the API scheme also stated that it accept the fields, but actually only confirmed/cancelled can be changed.\
+And the record list is not sorted by created time. So after making a new appointment the new record appear in a strange position. I need to sort it manually.
 
 
-Also for the available timeslot, for example 09:50 - 19:50 (you use 9.50 - 19.50 though), 19:00 seems to be a reasonable time but server reject it.\
+For the available timeslot, for example 09:50 - 19:50 (you use 9.50 - 19.50 though), 19:00 seems to be a reasonable time but server reject it.\
 And don't know why it accept numberic (e.g. 18) instead of string (e.g. "18:00")

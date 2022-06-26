@@ -7,6 +7,8 @@ import React, { useEffect } from "react";
 // import { toast } from "react-toastify";
 import Hamburger from "hamburger-react";
 import "./Topbar.scss";
+import { RootState } from "store";
+import { useSelector } from "react-redux";
 
 export interface Props {
   className?: string;
@@ -23,8 +25,8 @@ const Topbar: React.FC<Props> = ({
   isCollapsed,
   toggle,
 }: Props) => {
-
   const [activeRoute, setActiveRoute] = React.useState(routeName);
+  const { user } = useSelector((rootState: RootState) => rootState.auth);
 
   useEffect(() => {
     setActiveRoute(routeName);
@@ -42,7 +44,7 @@ const Topbar: React.FC<Props> = ({
       <div className="current ms-2">{activeRoute.toUpperCase()}</div>
 
       <div className="d-flex user justify-content-end align-items-center position-absolute end-0">
-
+        {user && user.name && <div className="mx-4">Hello, {user.name}!</div>}
       </div>
     </div>
   );

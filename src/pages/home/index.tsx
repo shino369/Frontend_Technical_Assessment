@@ -14,8 +14,8 @@ import { Form, Formik, FormikHelpers, FormikProps } from "formik";
 import * as Yup from "yup";
 // redux
 import { useDispatch } from "react-redux";
-// import { useSelector } from "react-redux";
-// import { RootState } from "store";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
 import { setLoading } from "store/loading";
 // import { setBooking } from "store/booking";
 // UI library
@@ -24,6 +24,7 @@ import { Label } from "reactstrap";
 import { Carousel, Form as BSForm } from "react-bootstrap";
 import { Box, Button, Paper, Step, StepLabel, Stepper } from "@mui/material";
 import { toast } from "react-toastify";
+import { setUser } from "store/auth";
 
 const steps = [
   "Fill in your information",
@@ -38,7 +39,7 @@ const Schema = Yup.object().shape({
   doctorId: Yup.string().required("Please select a doctor"),
   date: Yup.string().required("Please select a date"),
   start: Yup.string().when("date", {
-    is: (date: string) => !date || date.length === 0,
+    is: (date: Date) => !date,
     then: Yup.string().required("Please fill in date first"),
     otherwise: Yup.string().required(
       "Please select a timeslot within opening hours"
@@ -49,9 +50,9 @@ const Schema = Yup.object().shape({
 type FormItem = {
   name: string;
   docName: string;
-  start: string;
+  start: Date;
   doctorId: string;
-  date: string;
+  date: Date;
 };
 
 const CARD_HEIGHT = 100;
@@ -70,7 +71,7 @@ export const HomePage = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const { booking } = useSelector((rootState: RootState) => rootState.booking);
+  const { user } = useSelector((rootState: RootState) => rootState.auth);
 
   //=============================================================//
   //  handle stepper                                             //
@@ -114,14 +115,16 @@ export const HomePage = () => {
       dispatch(setLoading(false));
       setTimeout(() => {
         setReady(true);
-      }, 200); 
+      }, 200);
     } catch (error: any) {
       dispatch(setLoading(false));
       console.log(error);
-      setErrorMessage(`Failed to get doctor list : ${error?.message}. Try again?`);
+      setErrorMessage(
+        `Failed to get doctor list : ${error?.message}. Try again?`
+      );
       setShowDialog(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // useEffect(() => {
@@ -132,10 +135,9 @@ export const HomePage = () => {
   //  for retrigger grid effect                                  //
   //=============================================================//
   useEffect(() => {
-    if(activeStep === 1){
+    if (activeStep === 1) {
       getDoc();
     }
-
   }, [activeStep, getDoc]);
 
   //=============================================================//
@@ -202,7 +204,10 @@ export const HomePage = () => {
     if (valid) {
       // dispatch to redux if needed
 
-      // console.log(booking);
+      console.log(props.values);
+      if(activeStep===0){
+        dispatch(setUser({name: props.values.name}));
+      }
       // dispatch(
       //   setBooking({
       //     ...props.values,
@@ -256,9 +261,7 @@ export const HomePage = () => {
     if (availableRange && availableRange[weekday]) {
       const start = moment(availableRange[weekday]?.start, "H.mm");
       const end = moment(availableRange[weekday]?.end, "H.mm");
-      if (
-        _hour.isAfter(start) && _hour.isBefore(end)
-      ) {
+      if (_hour.isAfter(start) && _hour.isBefore(end)) {
         return false;
       }
     }
@@ -334,7 +337,8 @@ export const HomePage = () => {
     try {
       const res = await postBooking({
         ...values,
-        start: parseInt(values.start.split(":")[0]),
+        date: moment(values.date).format("YYYY-MM-DD"),
+        start: parseInt(moment(values.date).format("H:mm").split(":")[0]),
       });
       console.log(res);
       // setLoading(false);
@@ -345,12 +349,16 @@ export const HomePage = () => {
         className: "text-dark",
       });
       setTimeout(() => {
-         navigate("/record");
+        navigate("/record");
       }, 500);
-     
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       dispatch(setLoading(false));
+      toast(`Error: ${error.response.data}`, {
+        theme: "colored",
+        position: "top-right",
+        className: "text-dark",
+      });
     }
   };
 
@@ -423,11 +431,11 @@ export const HomePage = () => {
         <div className="d-flex flex-column flex-grow-1">
           <Formik
             initialValues={{
-              name: "",
-              start: "",
+              name: user?.name ||  "",
+              start: moment("12:00", "HH:mm").toDate(),
               docName: "",
               doctorId: "",
-              date: "",
+              date: moment().add(1, "days").toDate(),
             }}
             validationSchema={Schema}
             onSubmit={onSubmit}
@@ -572,20 +580,18 @@ export const HomePage = () => {
                         <div className="mb-2">
                           <Label>date</Label>
                           <DatePicker
+                            value={props.values.date}
                             placement="auto"
                             name="date"
                             onChange={(date) => {
-                              props.setFieldValue(
-                                "date",
-                                date ? moment(date).format("YYYY-MM-DD") : ""
-                              );
+                              props.setFieldValue("date", date);
                             }}
                             disabledDate={(date) => notAvailable(date, props)}
                             style={{ width: "100%" }}
                           />
                           <ShowError
                             props={props}
-                            message={props.errors.date || "-"}
+                            message={(props.errors.date as string) || "-"}
                             field={"date"}
                           />
                         </div>
@@ -593,17 +599,15 @@ export const HomePage = () => {
                         <div>
                           <Label>Time</Label>
                           <DatePicker
+                            value={props.values.start}
                             placement="auto"
-                            disabled={props.values.date === ""}
+                            disabled={!props.values.date}
                             name="start"
                             onChange={(date) => {
                               if (date && isValidRange(date, props)) {
-                                props.setFieldValue(
-                                  "start",
-                                  date ? moment(date).format("HH:mm") : ""
-                                );
+                                props.setFieldValue("start", date);
                               } else {
-                                props.setFieldValue("start", "");
+                                props.setFieldValue("start", undefined);
                               }
                             }}
                             format="HH:mm"
@@ -617,7 +621,7 @@ export const HomePage = () => {
 
                           <ShowError
                             props={props}
-                            message={props.errors.start || "-"}
+                            message={(props.errors.start as string) || "-"}
                             field={"start"}
                           />
                         </div>
@@ -651,11 +655,11 @@ export const HomePage = () => {
                         </div>
                         <div className="d-flex mb-2">
                           <strong className="col-3">Date: </strong>
-                          {props.values.date}
+                          {moment(props.values.date).format("YYYY-MM-DD")}
                         </div>
                         <div className="d-flex mb-2">
                           <strong className="col-3">Time: </strong>
-                          {props.values.start}
+                          {moment(props.values.start).format("HH:mm")}
                         </div>
                       </div>
                     </div>
@@ -713,19 +717,15 @@ export const HomePage = () => {
         open={showDialog}
         title={"Error occurred"}
         message={errorMessage}
-        onConfirm={
-          ()=>{
-            setShowDialog(false);
-            setErrorMessage("");
-            getDoc()
-          }
-        }
-        onCancel={
-          ()=>{
-            setShowDialog(false);
-            setErrorMessage("");
-          }
-        }
+        onConfirm={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+          getDoc();
+        }}
+        onCancel={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+        }}
       />
     </div>
   );

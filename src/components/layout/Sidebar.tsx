@@ -28,7 +28,8 @@ const Sidebar: React.FC<Props> = ({
   useEffect(() => {
     setActiveRoute(routeName);
     close();
-  }, [close, routeName]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeName]);
 
 
   return (
