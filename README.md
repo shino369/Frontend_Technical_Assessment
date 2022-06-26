@@ -14,7 +14,7 @@ Feature:
 - user can search doctor
 - user can see doctor detail
 
-[URL of deployed site in netlify](https://62b76949fe722135ab6bb13b--loquacious-cassata-5727ac.netlify.app/)
+[URL of deployed site in netlify](https://master--loquacious-cassata-5727ac.netlify.app/)
 
 ### `Choice of Package`
 
