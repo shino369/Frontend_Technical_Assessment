@@ -372,7 +372,7 @@ export const RecordPage = () => {
         <div className="d-flex flex-column flex-grow-1">
           {!isMobile ? (
             <Table
-              height={420}
+              height={window.innerHeight * 0.7}
               data={record}
               wordWrap
               sortColumn={sortColumn}
