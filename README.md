@@ -6,7 +6,7 @@ Author: Anthony Wong
 
 Code test for Bowtie frontend engineer interview.\
 Perform CRUD for doctor appointment.\
-*please note that your server has CORS and request from netlify is blocked by CORS policy.\
+
 [URL of deployed site in netlify](https://62b76949fe722135ab6bb13b--loquacious-cassata-5727ac.netlify.app/)
 
 ### `Choice of Package`
