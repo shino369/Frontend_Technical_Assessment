@@ -338,7 +338,7 @@ export const HomePage = () => {
       const res = await postBooking({
         ...values,
         date: moment(values.date).format("YYYY-MM-DD"),
-        start: parseInt(moment(values.date).format("H:mm").split(":")[0]),
+        start: parseInt(moment(values.start).format("H:mm").split(":")[0]),
       });
       console.log(res);
       // setLoading(false);

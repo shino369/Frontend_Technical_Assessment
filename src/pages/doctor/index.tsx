@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setLoading } from "store/loading";
 import { useLocation } from "react-router-dom";
 import { WEEK, WEEKDAYS, WEEKMAPPER } from "models/Booking";
+import { ConfirmDialog } from "components";
 
 
 const FORM_MAX_WIDTH = "1280px";
@@ -20,6 +21,8 @@ export const DoctorPage = () => {
   const location = useLocation();
   const paths = location.pathname.split("/");
   const [id] = useState<string>(paths[paths.length - 1]);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const getDoc = useCallback(async () => {
     try {
@@ -36,9 +39,11 @@ export const DoctorPage = () => {
       );
       setDoctor(data);
       dispatch(setLoading(false));
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       dispatch(setLoading(false));
+      setErrorMessage(`Failed to get record : ${error?.message}. Try again?`);
+      setShowDialog(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -114,6 +119,21 @@ export const DoctorPage = () => {
           </div>
         </div>
       </Paper>
+
+      <ConfirmDialog
+        open={showDialog}
+        title={"Error occurred"}
+        message={errorMessage}
+        onConfirm={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+          getDoc();
+        }}
+        onCancel={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+        }}
+      />
     </div>
   );
 };

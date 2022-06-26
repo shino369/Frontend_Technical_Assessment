@@ -15,6 +15,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ConfirmDialog } from "components";
+import { toast } from "react-toastify";
 
 const FORM_MAX_WIDTH = "1280px";
 
@@ -37,6 +38,8 @@ export const RecordPage = () => {
   const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
   const [sortColumn, setSortColumn] = useState<string>();
   const [sortType, setSortType] = useState<any>();
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const editable = new Map([
     ["start", true],
     ["date", true],
@@ -86,16 +89,23 @@ export const RecordPage = () => {
       setRecord(__bookingList);
       setAllDoctors(_doctorList);
       dispatch(setLoading(false));
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       dispatch(setLoading(false));
+      // toast(`Error: ${error.response.data}`, {
+      //   theme: "colored",
+      //   position: "top-right",
+      //   className: "text-dark",
+      // });
+      setErrorMessage(`Failed to get record : ${error?.message}. Try again?`);
+      setShowDialog(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getRecord();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSort = useCallback(
@@ -163,10 +173,20 @@ export const RecordPage = () => {
         await patchBooking(activeTable.id, {
           status: "cancelled",
         });
+        toast("Cancelled successfully", {
+          theme: "colored",
+          position: "top-right",
+          className: "text-dark",
+        });
         getRecord();
-      } catch (error) {
+      } catch (error: any) {
         console.log(error);
         dispatch(setLoading(false));
+        toast(`Error: ${error.response.data}`, {
+          theme: "colored",
+          position: "top-right",
+          className: "text-dark",
+        });
       }
     }
   };
@@ -458,6 +478,20 @@ export const RecordPage = () => {
         }}
         onCancel={() => {
           setActiveTable(undefined);
+        }}
+      />
+      <ConfirmDialog
+        open={showDialog}
+        title={"Error occurred"}
+        message={errorMessage}
+        onConfirm={() => {
+          setShowDialog(false);
+          setErrorMessage("");
+          getRecord();
+        }}
+        onCancel={() => {
+          setShowDialog(false);
+          setErrorMessage("");
         }}
       />
     </div>
