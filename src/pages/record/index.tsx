@@ -116,8 +116,8 @@ export const RecordPage = () => {
       const sortRecord = _.orderBy(record, [sortColumn], [sortType || "asc"]);
       setRecord(sortRecord);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+
+    [record]
   );
 
   const handleEditState = (rowData: TableData, cancel?: boolean) => {
