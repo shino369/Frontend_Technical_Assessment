@@ -5,7 +5,7 @@ Author: Anthony Wong
 ## Overview
 
 Code test for Bowtie frontend engineer interview.\
-Perform CRUD for doctor appointment.\
+Perform CRUD for doctor appointment.
 
 Feature:
 
