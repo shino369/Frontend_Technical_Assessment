@@ -1,7 +1,7 @@
 # Doctor Booking System
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).\
-Author: Anthony Wong
+Author: Shino369
 ## Overview
 
 Code test for Bowtie frontend engineer interview.\
